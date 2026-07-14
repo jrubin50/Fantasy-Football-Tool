@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fantasy Rankings 2026 · Half PPR Draft Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f11; --surface: #161a1e; --surface2: #1e2329;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+    --text: #eef0f2; --muted: #7a8899;
+    --accent: #00e5a0; --accent-dim: rgba(0,229,160,0.12);
+    --red: #ff5e5e; --amber: #ffb547; --blue: #4da6ff; --purple: #b48fff;
+    --font: 'Inter', sans-serif; --mono: 'IBM Plex Mono', monospace;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  .header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .header-left h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+  .header-left h1 span { color: var(--accent); }
+  .header-left p { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+  .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge { background: var(--accent-dim); color: var(--accent); font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; font-family: var(--mono); border: 1px solid rgba(0,229,160,0.25); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .card-label { font-size: 11px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .card-val { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .pos-group { display: flex; gap: 4px; }
+  .pos-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border2); background: transparent; color: var(--muted); transition: all 0.15s; font-family: var(--font); }
+  .pos-btn:hover { color: var(--text); }
+  .pos-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .search-input { flex: 1; min-width: 180px; padding: 8px 14px; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; font-family: var(--font); }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+  select.ctrl { padding: 8px 12px; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-size: 13px; font-family: var(--font); outline: none; cursor: pointer; }
+  .tabs { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { padding: 10px 18px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font); transition: color 0.15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; display: none; }
+  .info-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .info-card p { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .model-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-size: 13px; }
+  .model-bar-wrap { width: 80px; height: 6px; background: var(--surface2); border-radius: 3px; flex-shrink: 0; }
+  .model-bar { height: 6px; border-radius: 3px; background: var(--accent); }
+  .model-pct { font-family: var(--mono); font-size: 12px; color: var(--accent); width: 32px; }
+  .model-desc { color: var(--muted); }
+  .model-desc strong { color: var(--text); }
+  .section-label { font-size: 11px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.5px; text-transform: uppercase; margin: 14px 0 8px; }
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { border-bottom: 1px solid var(--border2); }
+  th { padding: 10px 10px; text-align: right; font-size: 11px; font-weight: 500; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+  th.left { text-align: left; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  td { padding: 10px 10px; text-align: right; white-space: nowrap; }
+  td.left { text-align: left; }
+  .player-name { font-weight: 500; color: var(--text); max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+  .rank-num { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .pos-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; font-family: var(--mono); }
+  .pos-QB { background: rgba(77,166,255,0.15); color: #4da6ff; }
+  .pos-RB { background: rgba(0,229,160,0.12); color: #00e5a0; }
+  .pos-WR { background: rgba(180,143,255,0.15); color: #b48fff; }
+  .pos-TE { background: rgba(255,181,71,0.15); color: #ffb547; }
+  .team-tag { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .score-val { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+  .tier-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); }
+  .tier-0{background:rgba(255,94,94,0.15);color:#ff5e5e;} .tier-1{background:rgba(255,181,71,0.15);color:#ffb547;}
+  .tier-2{background:rgba(0,229,160,0.12);color:#00e5a0;} .tier-3{background:rgba(77,166,255,0.12);color:#4da6ff;}
+  .tier-4{background:rgba(180,143,255,0.12);color:#b48fff;} .tier-5{background:rgba(255,255,255,0.06);color:var(--muted);}
+  .val-high{color:var(--accent);font-weight:500;} .val-mid{color:var(--amber);} .val-low{color:var(--muted);} .val-neg{color:var(--red);font-weight:500;}
+  /* Edge badge */
+  .edge-huge  { background: rgba(0,229,160,0.18); color: #00e5a0; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); border: 1px solid rgba(0,229,160,0.3); }
+  .edge-good  { background: rgba(77,166,255,0.12); color: #4da6ff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); }
+  .edge-slight{ background: rgba(255,181,71,0.10); color: #ffb547; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); }
+  .edge-none  { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  .edge-neg   { color: rgba(255,94,94,0.6); font-size: 12px; font-family: var(--mono); }
+  .consensus-rank { font-family: var(--mono); font-size: 12px; }
+  .loading { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .loading-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 3px; animation: pulse 1.2s ease-in-out infinite; }
+  .loading-dot:nth-child(2){animation-delay:0.2s;} .loading-dot:nth-child(3){animation-delay:0.4s;}
+  @keyframes pulse{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+  .status-bar { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-bottom: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+  .footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); font-family: var(--mono); display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; }
+  .error-box { background: rgba(255,94,94,0.08); border: 1px solid rgba(255,94,94,0.2); border-radius: 10px; padding: 20px; color: #ff5e5e; font-size: 13px; margin-bottom: 20px; display: none; }
+  .csv-note { background: rgba(77,166,255,0.06); border: 1px solid rgba(77,166,255,0.15); border-radius: 8px; padding: 12px 16px; font-size: 12px; color: var(--muted); margin-bottom: 16px; display: none; }
+  .csv-note strong { color: var(--blue); }
+  @media(max-width:640px){.container{padding:16px;}.header{padding:16px;}.cards{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Fantasy Rankings <span>2026</span></h1>
+    <p id="data-label">Loading 2025 season data from Sleeper API…</p>
+  </div>
+  <div class="header-right">
+    <div style="display:flex;gap:4px;margin-right:12px;">
+      <a href="compare.html" style="padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;border:1px solid var(--border2);color:var(--muted);">Compare</a>
+      <a href="history.html" style="padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;border:1px solid var(--border2);color:var(--muted);">Historical</a>
+      <a href="roster.html" style="padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;border:1px solid var(--border2);color:var(--muted);">Roster</a>
+    </div>
+    <span class="badge">HALF PPR</span>
+    <span class="badge">2026 DRAFT PREP</span>
+    <span class="badge" style="background:rgba(77,166,255,0.12);color:var(--blue);border-color:rgba(77,166,255,0.25);" id="consensus-badge">FantasyPros + ESPN/Yahoo</span>
+    <label class="badge" style="cursor:pointer; background:rgba(77,166,255,0.12); color:var(--blue); border-color:rgba(77,166,255,0.25);">
+      Import Rankings CSV
+      <input type="file" id="csv-upload" accept=".csv" style="display:none;" onchange="handleCSV(event)" />
+    </label>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" id="tab-edge"    onclick="switchTab('edge')">🔥 Edge Plays</button>
+    <button class="tab"        id="tab-overall" onclick="switchTab('overall')">Overall</button>
+    
+    
+    <button class="tab"        id="tab-model"   onclick="switchTab('model')">Model</button>
+  </div>
+
+  <!-- Edge plays explainer -->
+  <div class="info-card" id="info-edge" style="display:block;">
+    <h3>Edge plays — analytics vs. consensus</h3>
+    <p>Players ranked significantly higher by our model than by expert consensus (from FantasyPros ECR rankings (6/24/2026)). A big positive edge % means consensus is sleeping on them — 2025 production data suggests they're undervalued. You can also override with your own CSV via the Import button.</p>
+    <div style="display:flex; gap:20px; flex-wrap:wrap; font-size:13px;">
+      <span><span class="edge-huge">▲ EDGE</span> &nbsp;Model ranks player in top 4% better than consensus</span>
+      <span><span class="edge-good">▲ Value</span> &nbsp;Model ranks player 2–3% better than consensus</span>
+      <span><span class="edge-slight">▲ Slight</span> &nbsp;Model ranks player ~1% better than consensus</span>
+      <span><span class="edge-neg">▼ Avoid</span> &nbsp;Consensus ranks player 2%+ higher than model</span>
+    </div>
+  </div>
+
+  <!-- Model explainer -->
+  <div class="info-card" id="info-model">
+    <h3>How scores are calculated</h3>
+    <p>Separate models for QBs and skill positions. All signals normalized within each position group (0–1) before weighting. Consensus rank is imported from your CSV or defaults to Sleeper ADP.</p>
+    <div class="section-label" style="color:var(--accent);">QB Model</div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:100%"></div></div><span class="model-pct">30%</span><span class="model-desc"><strong>Pts/game</strong> — half PPR efficiency</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:50%"></div></div><span class="model-pct">15%</span><span class="model-desc"><strong>Completion %</strong> — accuracy and offensive system quality</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:50%"></div></div><span class="model-pct">15%</span><span class="model-desc"><strong>Pass att/game</strong> — volume signal</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:50%"></div></div><span class="model-pct">15%</span><span class="model-desc"><strong>RZ passing TDs</strong> — conversion rate</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:33%"></div></div><span class="model-pct">10%</span><span class="model-desc"><strong>RZ pass attempts</strong> — passing inside the 20</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:33%"></div></div><span class="model-pct">10%</span><span class="model-desc"><strong>Rush att/game</strong> — dual-threat upside</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:17%"></div></div><span class="model-pct">5%</span><span class="model-desc"><strong>RZ rush attempts</strong> — goal-line QB carries</span></div>
+    <div class="section-label" style="color:var(--blue); margin-top:16px;">RB Model — ceiling half PPR</div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:100%;background:var(--blue)"></div></div><span class="model-pct">30%</span><span class="model-desc"><strong>RZ touches</strong> — goal-line carries + targets; predicts TD upside</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:83%;background:var(--blue)"></div></div><span class="model-pct">25%</span><span class="model-desc"><strong>Pts/game</strong> — half PPR efficiency baseline</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:67%;background:var(--blue)"></div></div><span class="model-pct">20%</span><span class="model-desc"><strong>Target share</strong> — receiving role matters in half PPR</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:50%;background:var(--blue)"></div></div><span class="model-pct">15%</span><span class="model-desc"><strong>RZ target %</strong> — goal-line receiving role</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:33%;background:var(--blue)"></div></div><span class="model-pct">10%</span><span class="model-desc"><strong>Consistency</strong> — ceiling focus; floor deprioritized</span></div>
+    <div class="section-label" style="color:#7F77DD; margin-top:16px;">WR / TE Model — ceiling half PPR</div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:100%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">30%</span><span class="model-desc"><strong>Target share</strong> — strongest repeatable signal for receivers</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:83%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">25%</span><span class="model-desc"><strong>RZ target %</strong> — TD upside; being the go-to red zone option wins weeks</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:83%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">25%</span><span class="model-desc"><strong>Pts/game</strong> — half PPR efficiency baseline</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:33%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">10%</span><span class="model-desc"><strong>RZ touches</strong> — secondary signal; raw touches matter less for receivers</span></div>
+    <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:33%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">10%</span><span class="model-desc"><strong>Consistency</strong> — ceiling focus; boom weeks prioritized over floor</span></div>
+    <p style="margin-top:14px;font-size:12px;color:var(--muted);">Edge % = (consensus rank − model rank) ÷ total players × 100. Positive = model rates player higher than consensus. Larger % = bigger value opportunity.</p>
+  </div>
+
+  <div class="csv-note" id="csv-note">
+    <strong>Consensus rankings loaded</strong> — <span id="csv-msg"></span>. Edge scores now reflect real expert consensus vs. your model.
+  </div>
+
+  <div class="cards" id="stat-cards"></div>
+
+  <div class="controls">
+    <div class="pos-group">
+      <button class="pos-btn active" id="pb-ALL" onclick="setPos('ALL')">ALL</button>
+      <button class="pos-btn" id="pb-QB" onclick="setPos('QB')">QB</button>
+      <button class="pos-btn" id="pb-RB" onclick="setPos('RB')">RB</button>
+      <button class="pos-btn" id="pb-WR" onclick="setPos('WR')">WR</button>
+      <button class="pos-btn" id="pb-TE" onclick="setPos('TE')">TE</button>
+    </div>
+    <input type="text" class="search-input" id="search" placeholder="Search player or team…" oninput="renderTable()" />
+    <select class="ctrl" id="min-games" onchange="renderTable()">
+      <option value="8">Min 8 games</option>
+      <option value="12">Min 12 games</option>
+      <option value="14">Min 14 games</option>
+      <option value="1">All players</option>
+    </select>
+    <select class="ctrl" id="edge-filter" onchange="renderTable()" style="display:none;">
+      <option value="all">All edge levels</option>
+      <option value="huge">▲ EDGE only</option>
+      <option value="good">▲ Value+</option>
+      <option value="pos">All positive edge</option>
+    </select>
+  </div>
+
+  <div class="error-box" id="error-box"></div>
+  <div class="status-bar"><span id="status">—</span><span id="weeks-loaded">—</span></div>
+
+  <div class="table-wrap">
+    <div class="loading" id="loading">
+      <div style="margin-bottom:16px;"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>
+      <p style="font-size:13px;">Fetching all 18 weeks of 2025 NFL data…</p>
+      <p style="font-size:12px;margin-top:6px;color:var(--muted);">Takes 5–10 seconds on first load</p>
+    </div>
+    <table id="main-table" style="display:none;">
+      <thead id="table-head"></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:20px; padding:16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:13px; color:var(--muted);">
+    <strong style="color:var(--text); display:block; margin-bottom:8px;">How to import consensus rankings</strong>
+    Export a CSV from FantasyPros (half-PPR cheatsheet → Export), ESPN, or Yahoo. The file needs columns named <code style="color:var(--accent); background:var(--surface2); padding:1px 5px; border-radius:3px;">player_name</code> (or <code style="color:var(--accent); background:var(--surface2); padding:1px 5px; border-radius:3px;">name</code>) and <code style="color:var(--accent); background:var(--surface2); padding:1px 5px; border-radius:3px;">rank</code> (or <code style="color:var(--accent); background:var(--surface2); padding:1px 5px; border-radius:3px;">rank_ecr</code>). Click <strong style="color:var(--blue);">Import Rankings CSV</strong> above to load it. The app already has FantasyPros + ESPN/Yahoo 2026 half PPR rankings baked in and averaged. Import a CSV to override with your own source or a more recent export.
+  </div>
+
+  <div class="footer">
+    <span>Data: Sleeper API · 2025 NFL Regular Season · ADP: FantasyPros 2026 Half PPR · Consensus: FantasyPros, Rotoball, ESPN, Yahoo</span>
+    <span>Scoring: rec=0.5pt · TD=6pt · pass TD=4pt · int/fum=-2pt</span>
+    <span>Edge % = (consensus rank − model rank) ÷ total players × 100</span>
+  </div>
+</div>
+
+<script>
+// CONSENSUS_DATA: FantasyPros ECR 6/24/2026 · top 300 skill positions · unique ranks
+const CONSENSUS_DATA = [
+  ['bijan robinson', 1, 'RB'],
+  ['jahmyr gibbs', 2, 'RB'],
+  ['ja\'marr chase', 3, 'WR'],
+  ['puka nacua', 4, 'WR'],
+  ['jaxon smithnjigba', 5, 'WR'],
+  ['amonra st brown', 6, 'WR'],
+  ['christian mccaffrey', 7, 'RB'],
+  ['ceedee lamb', 8, 'WR'],
+  ['jonathan taylor', 9, 'RB'],
+  ['justin jefferson', 10, 'WR'],
+  ['james cook', 11, 'RB'],
+  ['drake london', 12, 'WR'],
+  ['ashton jeanty', 13, 'RB'],
+  ['de\'von achane', 14, 'RB'],
+  ['nico collins', 15, 'WR'],
+  ['brock bowers', 16, 'TE'],
+  ['chase brown', 17, 'RB'],
+  ['saquon barkley', 18, 'RB'],
+  ['aj brown', 19, 'WR'],
+  ['george pickens', 20, 'WR'],
+  ['omarion hampton', 21, 'RB'],
+  ['trey mcbride', 22, 'TE'],
+  ['chris olave', 23, 'WR'],
+  ['derrick henry', 24, 'RB'],
+  ['kenneth walker', 25, 'RB'],
+  ['josh allen', 26, 'QB'],
+  ['rashee rice', 27, 'WR'],
+  ['tetairoa mcmillan', 28, 'WR'],
+  ['devonta smith', 29, 'WR'],
+  ['jeremiyah love', 30, 'RB'],
+  ['tee higgins', 31, 'WR'],
+  ['malik nabers', 32, 'WR'],
+  ['lamar jackson', 33, 'QB'],
+  ['drake maye', 34, 'QB'],
+  ['kyren williams', 35, 'RB'],
+  ['zay flowers', 36, 'WR'],
+  ['breece hall', 37, 'RB'],
+  ['josh jacobs', 38, 'RB'],
+  ['garrett wilson', 39, 'WR'],
+  ['ladd mcconkey', 40, 'WR'],
+  ['colston loveland', 41, 'TE'],
+  ['javonte williams', 42, 'RB'],
+  ['travis etienne', 43, 'RB'],
+  ['terry mclaurin', 44, 'WR'],
+  ['emeka egbuka', 45, 'WR'],
+  ['joe burrow', 46, 'QB'],
+  ['jaylen waddle', 47, 'WR'],
+  ['davante adams', 48, 'WR'],
+  ['luther burden', 49, 'WR'],
+  ['jameson williams', 50, 'WR'],
+  ['cam skattebo', 51, 'RB'],
+  ['mike evans', 52, 'WR'],
+  ['quinshon judkins', 53, 'RB'],
+  ['bucky irving', 54, 'RB'],
+  ['treveyon henderson', 55, 'RB'],
+  ['christian watson', 56, 'WR'],
+  ['d\'andre swift', 57, 'RB'],
+  ['jayden daniels', 58, 'QB'],
+  ['jalen hurts', 59, 'QB'],
+  ['tyler warren', 60, 'TE'],
+  ['rome odunze', 61, 'WR'],
+  ['dj moore', 62, 'WR'],
+  ['david montgomery', 63, 'RB'],
+  ['tucker kraft', 64, 'TE'],
+  ['bhayshul tuten', 65, 'RB'],
+  ['carnell tate', 66, 'WR'],
+  ['caleb williams', 67, 'QB'],
+  ['justin herbert', 68, 'QB'],
+  ['jadarian price', 69, 'RB'],
+  ['jaylen warren', 70, 'RB'],
+  ['alec pierce', 71, 'WR'],
+  ['marvin harrison', 72, 'WR'],
+  ['dk metcalf', 73, 'WR'],
+  ['chuba hubbard', 74, 'RB'],
+  ['harold fannin', 75, 'TE'],
+  ['trevor lawrence', 76, 'QB'],
+  ['courtland sutton', 77, 'WR'],
+  ['rhamondre stevenson', 78, 'RB'],
+  ['rico dowdle', 79, 'RB'],
+  ['tony pollard', 80, 'RB'],
+  ['jaxson dart', 81, 'QB'],
+  ['dak prescott', 82, 'QB'],
+  ['brian thomas', 83, 'WR'],
+  ['sam laporta', 84, 'TE'],
+  ['rj harvey', 85, 'RB'],
+  ['kyle pitts', 86, 'TE'],
+  ['chris godwin', 87, 'WR'],
+  ['jordyn tyson', 88, 'WR'],
+  ['michael wilson', 89, 'WR'],
+  ['kyle monangai', 90, 'RB'],
+  ['makai lemon', 91, 'WR'],
+  ['brock purdy', 92, 'QB'],
+  ['parker washington', 93, 'WR'],
+  ['blake corum', 94, 'RB'],
+  ['jakobi meyers', 95, 'WR'],
+  ['michael pittman', 96, 'WR'],
+  ['jk dobbins', 97, 'RB'],
+  ['patrick mahomes', 98, 'QB'],
+  ['bo nix', 99, 'QB'],
+  ['wan\'dale robinson', 100, 'WR'],
+  ['matthew stafford', 101, 'QB'],
+  ['travis kelce', 102, 'TE'],
+  ['ricky pearsall', 103, 'WR'],
+  ['kenny gainwell', 104, 'RB'],
+  ['jordan addison', 105, 'WR'],
+  ['aaron jones', 106, 'RB'],
+  ['dalton kincaid', 107, 'TE'],
+  ['quentin johnston', 108, 'WR'],
+  ['jared goff', 109, 'QB'],
+  ['kyler murray', 110, 'QB'],
+  ['jayden reed', 111, 'WR'],
+  ['george kittle', 112, 'TE'],
+  ['jacory croskeymerritt', 113, 'RB'],
+  ['jake ferguson', 114, 'TE'],
+  ['rachaad white', 115, 'RB'],
+  ['josh downs', 116, 'WR'],
+  ['dallas goedert', 117, 'TE'],
+  ['isaiah likely', 118, 'TE'],
+  ['jordan love', 119, 'QB'],
+  ['baker mayfield', 120, 'QB'],
+  ['tyrone tracy', 121, 'RB'],
+  ['xavier worthy', 122, 'WR'],
+  ['jordan mason', 123, 'RB'],
+  ['jayden higgins', 124, 'WR'],
+  ['tyler shough', 125, 'QB'],
+  ['khalil shakir', 126, 'WR'],
+  ['mark andrews', 127, 'TE'],
+  ['tyler allgeier', 128, 'RB'],
+  ['zach charbonnet', 129, 'RB'],
+  ['malik willis', 130, 'QB'],
+  ['chris rodriguez', 131, 'RB'],
+  ['romeo doubs', 132, 'WR'],
+  ['kc concepcion', 133, 'WR'],
+  ['woody marks', 134, 'RB'],
+  ['jonathon brooks', 135, 'RB'],
+  ['jalen coker', 136, 'WR'],
+  ['isiah pacheco', 137, 'RB'],
+  ['matthew golden', 138, 'WR'],
+  ['tyjae spears', 139, 'RB'],
+  ['juwan johnson', 140, 'TE'],
+  ['dylan sampson', 141, 'RB'],
+  ['cj stroud', 142, 'QB'],
+  ['oronde gadsden', 143, 'TE'],
+  ['sam darnold', 144, 'QB'],
+  ['alvin kamara', 145, 'RB'],
+  ['brenton strange', 146, 'TE'],
+  ['rashid shaheed', 147, 'WR'],
+  ['hunter henry', 148, 'TE'],
+  ['keaton mitchell', 149, 'RB'],
+  ['cam ward', 150, 'QB'],
+  ['brian robinson', 151, 'RB'],
+  ['jerry jeudy', 152, 'WR'],
+  ['jauan jennings', 153, 'WR'],
+  ['jonah coleman', 154, 'RB'],
+  ['omar cooper', 155, 'WR'],
+  ['denzel boston', 156, 'WR'],
+  ['tank bigsby', 157, 'RB'],
+  ['braelon allen', 158, 'RB'],
+  ['chig okonkwo', 159, 'TE'],
+  ['bryce young', 160, 'QB'],
+  ['james conner', 161, 'RB'],
+  ['travis hunter', 162, 'WR'],
+  ['daniel jones', 163, 'QB'],
+  ['emanuel wilson', 164, 'RB'],
+  ['dalton schultz', 165, 'TE'],
+  ['jalen mcmillan', 166, 'WR'],
+  ['adonai mitchell', 167, 'WR'],
+  ['kayshon boutte', 168, 'WR'],
+  ['stefon diggs', 169, 'WR'],
+  ['emmett johnson', 170, 'RB'],
+  ['tre\' harris', 171, 'WR'],
+  ['kimani vidal', 172, 'RB'],
+  ['tre tucker', 173, 'WR'],
+  ['deebo samuel', 174, 'WR'],
+  ['troy franklin', 175, 'WR'],
+  ['kenyon sadiq', 176, 'TE'],
+  ['aj barner', 177, 'TE'],
+  ['tj hockenson', 178, 'TE'],
+  ['ryan flournoy', 179, 'WR'],
+  ['brandon aiyuk', 180, 'WR'],
+  ['calvin ridley', 181, 'WR'],
+  ['sean tucker', 182, 'RB'],
+  ['isaac teslaa', 183, 'WR'],
+  ['jaylin noel', 184, 'WR'],
+  ['mike washington', 185, 'RB'],
+  ['jacoby brissett', 186, 'QB'],
+  ['ray davis', 187, 'RB'],
+  ['darnell mooney', 188, 'WR'],
+  ['pat bryant', 189, 'WR'],
+  ['nicholas singleton', 190, 'RB'],
+  ['kaytron allen', 191, 'RB'],
+  ['antonio williams', 192, 'WR'],
+  ['chimere dike', 193, 'WR'],
+  ['gunnar helm', 194, 'TE'],
+  ['jalen nailor', 195, 'WR'],
+  ['jaylen wright', 196, 'RB'],
+  ['de\'zhaun stribling', 197, 'WR'],
+  ['david njoku', 198, 'TE'],
+  ['malik washington', 199, 'WR'],
+  ['terrance ferguson', 200, 'TE'],
+  ['dontayvion wicks', 201, 'WR'],
+  ['tyreek hill', 202, 'WR'],
+  ['ollie gordon', 203, 'RB'],
+  ['elic ayomanor', 204, 'WR'],
+  ['rashod bateman', 205, 'WR'],
+  ['tank dell', 206, 'WR'],
+  ['pat freiermuth', 207, 'TE'],
+  ['ted hurst', 208, 'WR'],
+  ['cade otton', 209, 'TE'],
+  ['germie bernard', 210, 'WR'],
+  ['geno smith', 211, 'QB'],
+  ['zachariah branch', 212, 'WR'],
+  ['cooper kupp', 213, 'WR'],
+  ['marshawn lloyd', 214, 'RB'],
+  ['aaron rodgers', 215, 'QB'],
+  ['colby parkinson', 216, 'TE'],
+  ['devin neal', 217, 'RB'],
+  ['kaleb johnson', 218, 'RB'],
+  ['fernando mendoza', 219, 'QB'],
+  ['trey benson', 220, 'RB'],
+  ['chris bell', 221, 'WR'],
+  ['jack bech', 222, 'WR'],
+  ['eli stowers', 223, 'TE'],
+  ['keon coleman', 224, 'WR'],
+  ['christian kirk', 225, 'WR'],
+  ['kendre miller', 226, 'RB'],
+  ['demond claiborne', 227, 'RB'],
+  ['evan engram', 228, 'TE'],
+  ['chris brooks', 229, 'RB'],
+  ['malik davis', 230, 'RB'],
+  ['justice hill', 231, 'RB'],
+  ['elijah sarratt', 232, 'WR'],
+  ['tory horton', 233, 'WR'],
+  ['mason taylor', 234, 'TE'],
+  ['jaydon blue', 235, 'RB'],
+  ['isaiah davis', 236, 'RB'],
+  ['ty johnson', 237, 'RB'],
+  ['malachi fields', 238, 'WR'],
+  ['theo johnson', 239, 'TE'],
+  ['dj giddens', 240, 'RB'],
+  ['jordan james', 241, 'RB'],
+  ['seth mcgowan', 242, 'RB'],
+  ['marvin mims', 243, 'WR'],
+  ['mack hollins', 244, 'WR'],
+  ['michael penix', 245, 'QB'],
+  ['najee harris', 246, 'RB'],
+  ['kyle williams', 247, 'WR'],
+  ['samaje perine', 248, 'RB'],
+  ['chris brazzell', 249, 'WR'],
+  ['tyquan thornton', 250, 'WR'],
+  ['george holani', 251, 'RB'],
+  ['tua tagovailoa', 252, 'QB'],
+  ['darius slayton', 253, 'WR'],
+  ['jerome ford', 254, 'RB'],
+  ['greg dulcich', 255, 'TE'],
+  ['brashard smith', 256, 'RB'],
+  ['xavier legette', 257, 'WR'],
+  ['devin singletary', 258, 'RB'],
+  ['oscar delp', 259, 'TE'],
+  ['keenan allen', 260, 'WR'],
+  ['lequint allen', 261, 'RB'],
+  ['kaelon black', 262, 'RB'],
+  ['devaughn vele', 263, 'WR'],
+  ['emari demercado', 264, 'RB'],
+  ['hollywood brown', 265, 'WR'],
+  ['jake tonges', 266, 'TE'],
+  ['mike gesicki', 267, 'TE'],
+  ['adam randall', 268, 'RB'],
+  ['joe mixon', 269, 'RB'],
+  ['shedeur sanders', 270, 'QB'],
+  ['isaac guerendo', 271, 'RB'],
+  ['kirk cousins', 272, 'QB'],
+  ['deshaun watson', 273, 'QB'],
+  ['jaleel mclaughlin', 274, 'RB'],
+  ['skyler bell', 275, 'WR'],
+  ['isaiah bond', 276, 'WR'],
+  ['trevor etienne', 277, 'RB'],
+  ['ja\'kobi lane', 278, 'WR'],
+  ['tahj brooks', 279, 'RB'],
+  ['jarquez hunter', 280, 'RB'],
+  ['audric estime', 281, 'RB'],
+  ['andrei iosivas', 282, 'WR'],
+  ['kareem hunt', 283, 'RB'],
+  ['konata mumpfield', 284, 'WR'],
+  ['jalen royals', 285, 'WR'],
+  ['tez johnson', 286, 'WR'],
+  ['calvin austin', 287, 'WR'],
+  ['jj mccarthy', 288, 'QB'],
+  ['cedric tillman', 289, 'WR'],
+  ['max klare', 290, 'TE'],
+  ['darnell washington', 291, 'TE'],
+  ['will shipley', 292, 'RB'],
+  ['luke mccaffrey', 293, 'WR'],
+  ['bam knight', 294, 'RB'],
+  ['jahan dotson', 295, 'WR'],
+  ['olamide zaccheaus', 296, 'WR'],
+  ['j\'mari taylor', 297, 'RB'],
+  ['xavier hutchinson', 298, 'WR'],
+  ['caleb douglas', 299, 'WR'],
+  ['tyler higbee', 300, 'TE']
+];
+const CONSENSUS_SOURCES = 'FantasyPros ECR 6/24/2026 · top 300 skill positions';
+
+// ADP_DATA: FantasyPros 2026 Half PPR ADP · consensus players only · rounded to whole number
+const ADP_DATA = {
+  'bijan robinson': {rank:2, avg:2},
+  'jahmyr gibbs': {rank:1, avg:1},
+  'ja\'marr chase': {rank:3, avg:3},
+  'puka nacua': {rank:4, avg:4},
+  'jaxon smithnjigba': {rank:5, avg:5},
+  'amonra st brown': {rank:8, avg:8},
+  'christian mccaffrey': {rank:6, avg:6},
+  'ceedee lamb': {rank:11, avg:11},
+  'jonathan taylor': {rank:7, avg:7},
+  'justin jefferson': {rank:9, avg:10},
+  'james cook': {rank:10, avg:11},
+  'drake london': {rank:19, avg:18},
+  'ashton jeanty': {rank:12, avg:12},
+  'de\'von achane': {rank:13, avg:14},
+  'nico collins': {rank:23, avg:23},
+  'brock bowers': {rank:18, avg:18},
+  'chase brown': {rank:17, avg:18},
+  'saquon barkley': {rank:14, avg:15},
+  'aj brown': {rank:21, avg:21},
+  'george pickens': {rank:25, avg:24},
+  'omarion hampton': {rank:15, avg:17},
+  'trey mcbride': {rank:16, avg:18},
+  'chris olave': {rank:27, avg:28},
+  'derrick henry': {rank:22, avg:22},
+  'kenneth walker': {rank:20, avg:19},
+  'josh allen': {rank:24, avg:23},
+  'rashee rice': {rank:29, avg:31},
+  'tetairoa mcmillan': {rank:41, avg:41},
+  'devonta smith': {rank:28, avg:31},
+  'jeremiyah love': {rank:26, avg:25},
+  'tee higgins': {rank:38, avg:39},
+  'malik nabers': {rank:33, avg:34},
+  'lamar jackson': {rank:43, avg:44},
+  'drake maye': {rank:58, avg:55},
+  'kyren williams': {rank:30, avg:32},
+  'zay flowers': {rank:37, avg:39},
+  'breece hall': {rank:31, avg:32},
+  'josh jacobs': {rank:39, avg:40},
+  'garrett wilson': {rank:42, avg:42},
+  'ladd mcconkey': {rank:44, avg:44},
+  'colston loveland': {rank:35, avg:36},
+  'javonte williams': {rank:32, avg:33},
+  'travis etienne': {rank:34, avg:35},
+  'terry mclaurin': {rank:51, avg:52},
+  'emeka egbuka': {rank:36, avg:38},
+  'joe burrow': {rank:48, avg:51},
+  'jaylen waddle': {rank:54, avg:54},
+  'davante adams': {rank:53, avg:54},
+  'luther burden': {rank:45, avg:47},
+  'jameson williams': {rank:57, avg:55},
+  'cam skattebo': {rank:40, avg:40},
+  'mike evans': {rank:56, avg:55},
+  'quinshon judkins': {rank:47, avg:49},
+  'bucky irving': {rank:59, avg:56},
+  'treveyon henderson': {rank:52, avg:54},
+  'christian watson': {rank:64, avg:66},
+  'd\'andre swift': {rank:55, avg:54},
+  'jayden daniels': {rank:60, avg:59},
+  'jalen hurts': {rank:66, avg:68},
+  'tyler warren': {rank:50, avg:51},
+  'rome odunze': {rank:63, avg:63},
+  'dj moore': {rank:46, avg:48},
+  'david montgomery': {rank:49, avg:51},
+  'tucker kraft': {rank:69, avg:72},
+  'bhayshul tuten': {rank:61, avg:60},
+  'carnell tate': {rank:68, avg:71},
+  'caleb williams': {rank:65, avg:67},
+  'justin herbert': {rank:83, avg:83},
+  'jadarian price': {rank:62, avg:60},
+  'jaylen warren': {rank:75, avg:79},
+  'alec pierce': {rank:84, avg:84},
+  'marvin harrison': {rank:73, avg:75},
+  'dk metcalf': {rank:86, avg:85},
+  'chuba hubbard': {rank:71, avg:74},
+  'harold fannin': {rank:72, avg:75},
+  'trevor lawrence': {rank:81, avg:81},
+  'courtland sutton': {rank:87, avg:85},
+  'rhamondre stevenson': {rank:74, avg:77},
+  'rico dowdle': {rank:85, avg:85},
+  'tony pollard': {rank:76, avg:79},
+  'jaxson dart': {rank:88, avg:88},
+  'dak prescott': {rank:70, avg:73},
+  'brian thomas': {rank:67, avg:69},
+  'sam laporta': {rank:82, avg:82},
+  'rj harvey': {rank:80, avg:81},
+  'kyle pitts': {rank:77, avg:79},
+  'chris godwin': {rank:93, avg:93},
+  'jordyn tyson': {rank:78, avg:80},
+  'michael wilson': {rank:89, avg:89},
+  'kyle monangai': {rank:91, avg:89},
+  'makai lemon': {rank:92, avg:92},
+  'brock purdy': {rank:97, avg:98},
+  'parker washington': {rank:79, avg:80},
+  'blake corum': {rank:98, avg:100},
+  'jakobi meyers': {rank:106, avg:106},
+  'michael pittman': {rank:109, avg:106},
+  'jk dobbins': {rank:96, avg:98},
+  'patrick mahomes': {rank:94, avg:93},
+  'bo nix': {rank:104, avg:104},
+  'wan\'dale robinson': {rank:108, avg:106},
+  'matthew stafford': {rank:90, avg:89},
+  'travis kelce': {rank:102, avg:103},
+  'ricky pearsall': {rank:112, avg:109},
+  'kenny gainwell': {rank:103, avg:103},
+  'jordan addison': {rank:105, avg:105},
+  'aaron jones': {rank:122, avg:120},
+  'dalton kincaid': {rank:114, avg:110},
+  'quentin johnston': {rank:99, avg:100},
+  'jared goff': {rank:101, avg:103},
+  'kyler murray': {rank:116, avg:112},
+  'jayden reed': {rank:100, avg:102},
+  'george kittle': {rank:95, avg:96},
+  'jacory croskeymerritt': {rank:126, avg:122},
+  'jake ferguson': {rank:115, avg:111},
+  'rachaad white': {rank:113, avg:110},
+  'josh downs': {rank:110, avg:108},
+  'dallas goedert': {rank:118, avg:115},
+  'isaiah likely': {rank:107, avg:106},
+  'jordan love': {rank:121, avg:118},
+  'baker mayfield': {rank:125, avg:121},
+  'tyrone tracy': {rank:129, avg:131},
+  'xavier worthy': {rank:117, avg:114},
+  'jordan mason': {rank:119, avg:117},
+  'jayden higgins': {rank:133, avg:135},
+  'tyler shough': {rank:124, avg:121},
+  'khalil shakir': {rank:132, avg:133},
+  'mark andrews': {rank:120, avg:118},
+  'tyler allgeier': {rank:152, avg:152},
+  'zach charbonnet': {rank:150, avg:149},
+  'malik willis': {rank:130, avg:132},
+  'chris rodriguez': {rank:131, avg:133},
+  'romeo doubs': {rank:127, avg:124},
+  'kc concepcion': {rank:128, avg:126},
+  'woody marks': {rank:138, avg:141},
+  'jonathon brooks': {rank:111, avg:109},
+  'jalen coker': {rank:136, avg:140},
+  'isiah pacheco': {rank:143, avg:144},
+  'matthew golden': {rank:123, avg:121},
+  'tyjae spears': {rank:158, avg:156},
+  'juwan johnson': {rank:137, avg:141},
+  'dylan sampson': {rank:163, avg:168},
+  'cj stroud': {rank:140, avg:142},
+  'oronde gadsden': {rank:142, avg:143},
+  'sam darnold': {rank:134, avg:136},
+  'alvin kamara': {rank:160, avg:161},
+  'brenton strange': {rank:147, avg:146},
+  'rashid shaheed': {rank:139, avg:142},
+  'hunter henry': {rank:145, avg:146},
+  'keaton mitchell': {rank:148, avg:147},
+  'cam ward': {rank:146, avg:146},
+  'brian robinson': {rank:162, avg:165},
+  'jerry jeudy': {rank:171, avg:174},
+  'jauan jennings': {rank:156, avg:155},
+  'jonah coleman': {rank:153, avg:152},
+  'omar cooper': {rank:159, avg:156},
+  'denzel boston': {rank:161, avg:165},
+  'tank bigsby': {rank:167, avg:172},
+  'braelon allen': {rank:195, avg:196},
+  'chig okonkwo': {rank:135, avg:137},
+  'bryce young': {rank:154, avg:154},
+  'james conner': {rank:217, avg:219},
+  'travis hunter': {rank:204, avg:178},
+  'daniel jones': {rank:149, avg:149},
+  'emanuel wilson': {rank:199, avg:202},
+  'dalton schultz': {rank:164, avg:168},
+  'jalen mcmillan': {rank:155, avg:154},
+  'adonai mitchell': {rank:192, avg:193},
+  'kayshon boutte': {rank:200, avg:202},
+  'stefon diggs': {rank:141, avg:143},
+  'emmett johnson': {rank:184, avg:185},
+  'tre\' harris': {rank:191, avg:193},
+  'kimani vidal': {rank:207, avg:211},
+  'tre tucker': {rank:166, avg:171},
+  'deebo samuel': {rank:172, avg:175},
+  'troy franklin': {rank:228, avg:228},
+  'kenyon sadiq': {rank:144, avg:144},
+  'aj barner': {rank:179, avg:181},
+  'tj hockenson': {rank:151, avg:150},
+  'ryan flournoy': {rank:187, avg:187},
+  'brandon aiyuk': {rank:178, avg:180},
+  'calvin ridley': {rank:176, avg:179},
+  'sean tucker': {rank:182, avg:183},
+  'isaac teslaa': {rank:180, avg:182},
+  'jaylin noel': {rank:234, avg:234},
+  'mike washington': {rank:188, avg:187},
+  'jacoby brissett': {rank:168, avg:173},
+  'ray davis': {rank:203, avg:208},
+  'darnell mooney': {rank:206, avg:210},
+  'pat bryant': {rank:237, avg:237},
+  'nicholas singleton': {rank:173, avg:178},
+  'kaytron allen': {rank:193, avg:193},
+  'antonio williams': {rank:169, avg:173},
+  'chimere dike': {rank:268, avg:244},
+  'gunnar helm': {rank:175, avg:179},
+  'jalen nailor': {rank:157, avg:156},
+  'jaylen wright': {rank:223, avg:225},
+  'de\'zhaun stribling': {rank:196, avg:197},
+  'david njoku': {rank:177, avg:180},
+  'malik washington': {rank:183, avg:185},
+  'terrance ferguson': {rank:202, avg:207},
+  'dontayvion wicks': {rank:214, avg:216},
+  'tyreek hill': {rank:181, avg:182},
+  'ollie gordon': {rank:258, avg:250},
+  'elic ayomanor': {rank:284, avg:269},
+  'rashod bateman': {rank:241, avg:243},
+  'tank dell': {rank:198, avg:198},
+  'pat freiermuth': {rank:194, avg:194},
+  'ted hurst': {rank:229, avg:229},
+  'cade otton': {rank:186, avg:186},
+  'germie bernard': {rank:201, avg:206},
+  'geno smith': {rank:174, avg:178},
+  'zachariah branch': {rank:189, avg:192},
+  'cooper kupp': {rank:211, avg:213},
+  'marshawn lloyd': {rank:208, avg:212},
+  'aaron rodgers': {rank:165, avg:170},
+  'colby parkinson': {rank:226, avg:227},
+  'devin neal': {rank:283, avg:306},
+  'kaleb johnson': {rank:251, avg:257},
+  'fernando mendoza': {rank:170, avg:174},
+  'trey benson': {rank:296, avg:288},
+  'chris bell': {rank:209, avg:212},
+  'jack bech': {rank:248, avg:250},
+  'eli stowers': {rank:190, avg:192},
+  'keon coleman': {rank:215, avg:216},
+  'christian kirk': {rank:220, avg:222},
+  'demond claiborne': {rank:216, avg:218},
+  'evan engram': {rank:219, avg:221},
+  'chris brooks': {rank:239, avg:240},
+  'malik davis': {rank:282, avg:264},
+  'justice hill': {rank:212, avg:214},
+  'elijah sarratt': {rank:232, avg:231},
+  'tory horton': {rank:243, avg:234},
+  'mason taylor': {rank:257, avg:256},
+  'jaydon blue': {rank:221, avg:224},
+  'isaiah davis': {rank:316, avg:310},
+  'ty johnson': {rank:255, avg:248},
+  'malachi fields': {rank:210, avg:213},
+  'theo johnson': {rank:249, avg:251},
+  'dj giddens': {rank:262, avg:254},
+  'jordan james': {rank:205, avg:209},
+  'seth mcgowan': {rank:348, avg:345},
+  'marvin mims': {rank:324, avg:319},
+  'mack hollins': {rank:315, avg:309},
+  'michael penix': {rank:230, avg:230},
+  'najee harris': {rank:260, avg:254},
+  'kyle williams': {rank:289, avg:279},
+  'samaje perine': {rank:240, avg:242},
+  'chris brazzell': {rank:225, avg:226},
+  'tyquan thornton': {rank:231, avg:230},
+  'george holani': {rank:224, avg:226},
+  'tua tagovailoa': {rank:197, avg:197},
+  'darius slayton': {rank:269, avg:245},
+  'jerome ford': {rank:367, avg:365},
+  'greg dulcich': {rank:185, avg:185},
+  'brashard smith': {rank:387, avg:385},
+  'xavier legette': {rank:287, avg:274},
+  'devin singletary': {rank:267, avg:300},
+  'oscar delp': {rank:279, avg:260},
+  'keenan allen': {rank:256, avg:248},
+  'lequint allen': {rank:270, avg:258},
+  'kaelon black': {rank:233, avg:231},
+  'devaughn vele': {rank:235, avg:234},
+  'emari demercado': {rank:271, avg:262},
+  'hollywood brown': {rank:263, avg:263},
+  'jake tonges': {rank:227, avg:227},
+  'mike gesicki': {rank:222, avg:225},
+  'adam randall': {rank:247, avg:240},
+  'joe mixon': {rank:246, avg:262},
+  'shedeur sanders': {rank:213, avg:215},
+  'isaac guerendo': {rank:385, avg:383},
+  'kirk cousins': {rank:236, avg:237},
+  'deshaun watson': {rank:218, avg:219},
+  'skyler bell': {rank:261, avg:238},
+  'isaiah bond': {rank:295, avg:287},
+  'trevor etienne': {rank:311, avg:304},
+  'ja\'kobi lane': {rank:245, avg:236},
+  'tahj brooks': {rank:301, avg:293},
+  'jarquez hunter': {rank:394, avg:392},
+  'audric estime': {rank:384, avg:382},
+  'andrei iosivas': {rank:265, avg:242},
+  'kareem hunt': {rank:254, avg:225},
+  'konata mumpfield': {rank:346, avg:342},
+  'jalen royals': {rank:309, avg:302},
+  'tez johnson': {rank:305, avg:297},
+  'calvin austin': {rank:345, avg:341},
+  'jj mccarthy': {rank:264, avg:256},
+  'cedric tillman': {rank:361, avg:359},
+  'max klare': {rank:328, avg:323},
+  'darnell washington': {rank:244, avg:246},
+  'will shipley': {rank:373, avg:371},
+  'luke mccaffrey': {rank:320, avg:314},
+  'jahan dotson': {rank:275, avg:264},
+  'olamide zaccheaus': {rank:323, avg:318},
+  'j\'mari taylor': {rank:349, avg:346},
+  'xavier hutchinson': {rank:330, avg:325},
+  'caleb douglas': {rank:242, avg:234},
+  'tyler higbee': {rank:331, avg:327}
+};
+
+
+// ─── Runtime state ────────────────────────────────────────────────────────────
+const TIER_LABELS = ['Elite','Tier 1','Tier 2','Tier 3','Tier 4','Sleeper'];
+let allPlayers = [];
+let currentPos = 'ALL';
+let currentTab = 'edge';
+let playerMeta = {};
+let csvLoaded = false;
+let sortCol = null;   // current sort column key
+let sortDir = 'desc'; // 'asc' or 'desc'
+
+// Build consensus lookup from baked-in data
+const consensusRanks = {};
+CONSENSUS_DATA.forEach(([name, rank, pos]) => { consensusRanks[normalizeName(name)] = {rank, pos}; });
+
+
+// ─── Scoring ─────────────────────────────────────────────────────────────────
+function halfPPR(s) {
+  if (!s) return 0;
+  let p = 0;
+  p += (s.pass_yd||0)*0.04 + (s.pass_td||0)*4 - (s.pass_int||0)*2;
+  p += (s.rush_yd||0)*0.1 + (s.rush_td||0)*6;
+  p += (s.rec_yd||0)*0.1 + (s.rec_td||0)*6 + (s.rec||0)*0.5;
+  p -= (s.fum_lost||0)*2;
+  return Math.max(0, p);
+}
+
+function norm(arr, key) {
+  const vals = arr.map(p => p[key]);
+  const mn = Math.min(...vals), mx = Math.max(...vals), range = mx - mn || 1;
+  arr.forEach(p => p['_n_'+key] = (p[key]-mn)/range);
+}
+
+function consistScore(wpts) {
+  if (wpts.length < 2) return 0.5;
+  const mean = wpts.reduce((a,b)=>a+b,0)/wpts.length;
+  if (mean < 0.5) return 0;
+  const sd = Math.sqrt(wpts.reduce((a,b)=>a+(b-mean)**2,0)/wpts.length);
+  return Math.max(0, 1 - (sd/mean)*0.6);
+}
+
+// ─── CSV import ──────────────────────────────────────────────────────────────
+function handleCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    const lines = evt.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
+    const headers = lines[0].toLowerCase().split(',').map(h=>h.replace(/"/g,'').trim());
+    const nameIdx = headers.findIndex(h=>h.includes('player_name')||h==='name'||h==='playername');
+    const rankIdx = headers.findIndex(h=>h==='rank'||h==='rank_ecr'||h==='ecr'||h==='overall_rank'||h==='rk');
+    if (nameIdx<0||rankIdx<0) { alert(`CSV needs "player_name" and "rank" columns.\nFound: ${headers.join(', ')}`); return; }
+    let matched=0;
+    for (let i=1;i<lines.length;i++) {
+      const cols=lines[i].split(',').map(c=>c.replace(/"/g,'').trim());
+      const name=cols[nameIdx]; const rank=parseInt(cols[rankIdx]);
+      if (name&&!isNaN(rank)) { consensusRanks[normalizeName(name)]={rank,pos:''}; matched++; }
+    }
+    csvLoaded=true;
+    allPlayers.forEach(p => {
+      const cr=consensusRanks[normalizeName(p.name)];
+      p.consensusRank = cr ? cr.rank : 999;  // 999 = not in consensus, sorts to bottom
+      p.edge = p.consensusRank - p.modelRank;
+    });
+    document.getElementById('csv-note').style.display='block';
+    document.getElementById('csv-msg').textContent=`${matched} players matched from ${file.name}`;
+    updateCards(); renderTable();
+  };
+  reader.readAsText(file);
+}
+
+function normalizeName(n) {
+  let s = n.toLowerCase().replace(/[^a-z\s']/g,'').replace(/\s+/g,' ').trim();
+  // Strip common suffixes so "Kenneth Walker" matches "Kenneth Walker III"
+  s = s.replace(/\s+(i{1,3}|iv|v|jr\.?|sr\.?)$/,'').trim();
+  return s;
+}
+
+// ─── Data fetch ───────────────────────────────────────────────────────────────
+async function fetchPlayerMeta() {
+  const r = await fetch('https://api.sleeper.app/v1/players/nfl');
+  const d = await r.json();
+  Object.values(d).forEach(p => {
+    if (p.active && ['QB','RB','WR','TE'].includes(p.position) && p.team) {
+      playerMeta[p.player_id] = { name:`${p.first_name||''} ${p.last_name||''}`.trim(), pos:p.position, team:p.team };
+    }
+  });
+}
+
+async function loadData() {
+  try {
+    document.getElementById('loading').style.display='block';
+    document.getElementById('main-table').style.display='none';
+    await fetchPlayerMeta();
+
+    const weeks = Array.from({length:18},(_,i)=>i+1);
+    const weekData = await Promise.all(
+      weeks.map(w => fetch(`https://api.sleeper.app/v1/stats/nfl/regular/2025/${w}`)
+        .then(r=>r.ok?r.json():{}).catch(()=>({})))
+    );
+
+    const agg={}, teamTargets={};
+    let weeksLoaded=0;
+    weekData.forEach(wk => {
+      if (Object.keys(wk).length<20) return;
+      weeksLoaded++;
+      Object.entries(wk).forEach(([pid,s]) => {
+        if (!s) return;
+        const meta=playerMeta[pid]; if (!meta) return;
+        teamTargets[meta.team]=(teamTargets[meta.team]||0)+(s.rec_tgt||0);
+      });
+      Object.entries(wk).forEach(([pid,s]) => {
+        if (!s) return;
+        const meta=playerMeta[pid];
+        if (!meta||!['QB','RB','WR','TE'].includes(meta.pos)) return;
+        const pts=halfPPR(s);
+        const played=pts>0.5||(s.rush_att>0)||(s.rec_tgt>0)||(s.pass_att>0);
+        if (!played) return;
+        if (!agg[pid]) agg[pid]={
+          gp:0,wpts:[],pass_yd:0,pass_td:0,pass_int:0,pass_att:0,pass_cmp:0,
+          rush_yd:0,rush_td:0,rush_att:0,rec:0,rec_yd:0,rec_td:0,rec_tgt:0,
+          fum_lost:0,rz_rush_att:0,rz_rec_tgt:0,
+          qb_pass_rz_att:0,qb_pass_rz_td:0,qb_rush_rz_att:0,qb_rush_rz_td:0
+        };
+        const a=agg[pid];
+        a.gp++; a.wpts.push(pts);
+        a.pass_yd+=(s.pass_yd||0); a.pass_td+=(s.pass_td||0); a.pass_int+=(s.pass_int||0); a.pass_att+=(s.pass_att||0); a.pass_cmp+=(s.pass_cmp||0);
+        a.rush_yd+=(s.rush_yd||0); a.rush_td+=(s.rush_td||0); a.rush_att+=(s.rush_att||0);
+        a.rec+=(s.rec||0); a.rec_yd+=(s.rec_yd||0); a.rec_td+=(s.rec_td||0); a.rec_tgt+=(s.rec_tgt||0);
+        a.fum_lost+=(s.fum_lost||0);
+        a.rz_rush_att+=(s.rush_rz_att||s.rz_rush_att||0);
+        a.rz_rec_tgt+=(s.rec_rz_tgt||s.rz_rec_tgt||0);
+        a.qb_pass_rz_att+=(s.pass_rz_att||s.pass_rz||0);
+        a.qb_pass_rz_td+=(s.pass_rz_td||0);
+        a.qb_rush_rz_att+=(s.rush_rz_att||s.rz_rush_att||0);
+        a.qb_rush_rz_td+=(s.rush_rz_td||s.rush_td_rz||0);
+      });
+    });
+
+    document.getElementById('weeks-loaded').textContent=`${weeksLoaded} weeks loaded`;
+    document.getElementById('data-label').textContent=`Full 2025 season · ${weeksLoaded} weeks · Half PPR · 2026 draft prep`;
+
+    const players=[];
+    Object.entries(agg).forEach(([pid,a]) => {
+      const meta=playerMeta[pid];
+      if (!meta||a.gp<1) return;
+      const totalPts=halfPPR(a);
+      const ppg=totalPts/a.gp;
+      if (ppg<2) return;
+      const consist=consistScore(a.wpts);
+      const _adpEntry=ADP_DATA[normalizeName(meta.name)]||null;
+      const adpRank=_adpEntry?_adpEntry.rank:null;
+      const adpAvg=_adpEntry?_adpEntry.avg:null;
+      // Total TDs and Turnovers
+      const totalTD=(a.pass_td||0)+(a.rush_td||0)+(a.rec_td||0);
+      const totalTO=(a.pass_int||0)+(a.fum_lost||0);
+
+      if (meta.pos==='QB') {
+        players.push({
+          id:pid, name:meta.name, pos:'QB', team:meta.team,
+          gp:a.gp, ppg:Math.round(ppg*10)/10,
+          totalTD, totalTO,
+          passAttPG:Math.round(a.pass_att/a.gp*10)/10,
+          rushAttPG:Math.round(a.rush_att/a.gp*10)/10,
+          cmpPct:a.pass_att>0?Math.round(a.pass_cmp/a.pass_att*1000)/10:0,
+          rzPassAtt:a.qb_pass_rz_att, rzPassTd:a.qb_pass_rz_td,
+          rzRushAtt:a.qb_rush_rz_att, rzRushTd:a.qb_rush_rz_td,
+          rzTouches:a.qb_pass_rz_att+a.qb_rush_rz_att,
+          consist, adpRank, rec_tgt:0, rush_att:a.rush_att,
+          tgtShare:0, tgtShare_raw:0, rzTgtPct:0, rzTgtPct_raw:0,
+          passAttPG_raw:a.pass_att/a.gp, rushAttPG_raw:a.rush_att/a.gp,
+          cmpPct_raw:a.pass_att>0?a.pass_cmp/a.pass_att:0,
+          rzPassAtt_raw:a.qb_pass_rz_att, rzPassTd_raw:a.qb_pass_rz_td,
+          rzRushAtt_raw:a.qb_rush_rz_att, rzRushTd_raw:a.qb_rush_rz_td,
+          modelRank:0, consensusRank:0, edge:0, tier:0, score:0,
+          adpRank:adpRank, adpAvg:adpAvg,
+          adpGap:0  // filled after consensus assignment
+        });
+      } else {
+        const teamTgt=teamTargets[meta.team]||1;
+        const tgtShare=Math.min(1,a.rec_tgt/teamTgt);
+        const rzTouches=a.rz_rush_att+a.rz_rec_tgt;
+        const rzTgtPct=a.rec_tgt>0?a.rz_rec_tgt/a.rec_tgt:0;
+        players.push({
+          id:pid, name:meta.name, pos:meta.pos, team:meta.team,
+          gp:a.gp, ppg:Math.round(ppg*10)/10,
+          totalTD, totalTO,
+          tgtShare:Math.round(tgtShare*1000)/10, tgtShare_raw:tgtShare,
+          rzTouches, rzTgtPct:Math.round(rzTgtPct*1000)/10, rzTgtPct_raw:rzTgtPct,
+          consist, rec_tgt:a.rec_tgt, rush_att:a.rush_att, adpRank:adpRank, adpAvg:adpAvg,
+          passAttPG:0, rushAttPG:0, rzPassAtt:0, rzPassTd:0, rzRushAtt:0, rzRushTd:0,
+          modelRank:0, consensusRank:0, edge:0, tier:0, score:0,
+          adpGap:0
+        });
+      }
+    });
+
+    // Normalize + score per position
+    const qbs=players.filter(p=>p.pos==='QB');
+    if (qbs.length) {
+      ['ppg','cmpPct_raw','passAttPG_raw','rushAttPG_raw','rzPassAtt_raw','rzPassTd_raw','rzRushAtt_raw'].forEach(k=>norm(qbs,k));
+      qbs.forEach(p => {
+        p.score=Math.round((
+          p._n_ppg*0.30 +
+          p._n_cmpPct_raw*0.15 +
+          p._n_passAttPG_raw*0.15 +
+          p._n_rzPassTd_raw*0.15 +
+          p._n_rzPassAtt_raw*0.10 +
+          p._n_rushAttPG_raw*0.10 +
+          p._n_rzRushAtt_raw*0.05
+        )*100);
+      });
+    }
+    // ── RB model: ceiling half PPR — RZ touches 30%, pts/g 25%, tgt share 20%, RZ tgt% 15%, consist 10%
+    const rbGrp=players.filter(p=>p.pos==='RB');
+    if (rbGrp.length) {
+      ['ppg','tgtShare_raw','rzTouches','rzTgtPct_raw','consist'].forEach(k=>norm(rbGrp,k));
+      rbGrp.forEach(p => {
+        p.score=Math.round((
+          p._n_rzTouches*0.30+
+          p._n_ppg*0.25+
+          p._n_tgtShare_raw*0.20+
+          p._n_rzTgtPct_raw*0.15+
+          p._n_consist*0.10
+        )*100);
+      });
+    }
+
+    // ── WR/TE model: ceiling half PPR — tgt share 30%, RZ tgt% 25%, pts/g 25%, RZ touches 10%, consist 10%
+    ['WR','TE'].forEach(pos => {
+      const g=players.filter(p=>p.pos===pos);
+      if (!g.length) return;
+      ['ppg','tgtShare_raw','rzTouches','rzTgtPct_raw','consist'].forEach(k=>norm(g,k));
+      g.forEach(p => {
+        p.score=Math.round((
+          p._n_tgtShare_raw*0.30+
+          p._n_rzTgtPct_raw*0.25+
+          p._n_ppg*0.25+
+          p._n_rzTouches*0.10+
+          p._n_consist*0.10
+        )*100);
+      });
+    });
+
+    // Per-position model rank (score desc within pos)
+    ['QB','RB','WR','TE'].forEach(pos => {
+      const g=[...players.filter(p=>p.pos===pos)].sort((a,b)=>b.score-a.score);
+      g.forEach((p,i)=>{ p.modelRank=i+1; });
+    });
+
+    // Assign consensus from baked-in data (falls back to ADP)
+    players.forEach(p => {
+      const cr=consensusRanks[normalizeName(p.name)];
+      p.consensusRank = cr ? cr.rank : 999;  // 999 = not in consensus, sorts to bottom
+      // adpGap computed after display ranks are assigned below
+    });
+
+    // Sort by consensus rank for the overall view (top players first)
+    players.sort((a,b)=>a.consensusRank-b.consensusRank);
+    players.forEach((p,i) => {
+      p.rank=i+1;
+      p.consensusDisplayRank=i+1;  // sequential 1,2,3... no ties
+      p.tier=Math.min(5,Math.floor(i/Math.ceil(players.length/6)));
+      const totalRanked=players.length;
+      const rawEdge=(p.consensusRank<999?p.consensusRank:200)-p.modelRank;
+      // Fix 3: dampen edge for low-consensus players (ranked outside top 150)
+      // Players ranked 150-200 get 50% edge, 200+ get 0%
+      const consensusUsed=p.consensusRank<999?p.consensusRank:200;
+      const dampen=consensusUsed<=150?1:consensusUsed<=250?0.5:0;
+      p.edge=Math.round(rawEdge/totalRanked*100*dampen);
+    });
+
+    // Assign sequential ADP display ranks (no ties, no gaps)
+    const byAdp=[...players].filter(p=>p.adpRank!=null).sort((a,b)=>a.adpRank-b.adpRank);
+    byAdp.forEach((p,i)=>p.adpDisplayRank=i+1);
+    players.filter(p=>p.adpRank==null).forEach(p=>p.adpDisplayRank=null);
+    // adpGap: positive = going later than consensus rank = value
+    players.forEach(p=>{
+      p.adpGap = (p.adpDisplayRank && p.consensusDisplayRank) ? Math.round(p.adpDisplayRank - p.consensusDisplayRank) : null;
+    });
+
+    allPlayers=players;
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main-table').style.display='table';
+    document.getElementById('edge-filter').style.display='block';
+    updateCards(); renderTable();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('loading').style.display='none';
+    const eb=document.getElementById('error-box');
+    eb.style.display='block';
+    eb.textContent=`Could not load data: ${e.message}. Check your connection and refresh.`;
+  }
+}
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+// ── ADP & context helpers ────────────────────────────────────────────────────
+const TEAM_CTX = {
+  'stefon diggs':       {type:'warning', msg:'Released — no team yet'},
+  'tyreek hill':        {type:'warning', msg:'Released — new team TBD'},
+  'deebo samuel':       {type:'warning', msg:'Free agent — role unclear'},
+  'cooper kupp':        {type:'caution', msg:'Moved to SEA — new system'},
+  'davante adams':      {type:'caution', msg:'Moved to LAR — new QB'},
+  'dk metcalf':         {type:'caution', msg:'Traded to PIT — new system'},
+  'george pickens':     {type:'boost',   msg:'Moved to DAL — upgrade to Dak'},
+  'travis etienne':     {type:'caution', msg:'Moved to NO — lower volume offense'},
+  'tua tagovailoa':     {type:'caution', msg:'Concussion history — durability concern'},
+  'christian mccaffrey':{type:'caution', msg:'8 games in 2025 — injury risk'},
+  'mike evans':         {type:'caution', msg:'Moved to SF — new system'},
+  'michael pittman':    {type:'caution', msg:'Moved to PIT — new QB situation'},
+  'jordan love':        {type:'boost',   msg:'Healthy full season expected'},
+};
+const CTX_STYLES = {
+  warning:{bg:'rgba(255,94,94,0.15)',  color:'#ff5e5e', icon:'⚠'},
+  caution:{bg:'rgba(255,181,71,0.15)', color:'#ffb547', icon:'⚡'},
+  boost:  {bg:'rgba(0,229,160,0.12)', color:'#00e5a0', icon:'↑'},
+};
+
+function contextWarn(name) {
+  const key=normalizeName(name);
+  const ctx=TEAM_CTX[key];
+  if (!ctx) return '';
+  const s=CTX_STYLES[ctx.type];
+  return `<span title="${ctx.msg}" style="background:${s.bg};color:${s.color};font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;cursor:help;vertical-align:middle;">${s.icon}</span>`;
+}
+
+function adpCell(adpDisplayRank) {
+  if (!adpDisplayRank) return '<span style="color:var(--muted);font-size:12px;">—</span>';
+  return `<span style="font-family:var(--mono);font-size:12px;color:var(--muted);">${adpDisplayRank}</span>`;
+}
+
+function adpGapBadge(gap) {
+  if (!gap && gap!==0) return '<span style="color:var(--muted);font-size:12px;">—</span>';
+  if (gap >= 10) return `<span style="background:rgba(0,229,160,0.12);color:var(--accent);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;font-family:var(--mono);">+${gap}</span>`;
+  if (gap >=  5) return `<span style="background:rgba(77,166,255,0.12);color:#4da6ff;font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px;font-family:var(--mono);">+${gap}</span>`;
+  if (gap <= -10)return `<span style="background:rgba(255,94,94,0.10);color:var(--red);font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px;font-family:var(--mono);">${gap}</span>`;
+  return `<span style="color:var(--muted);font-family:var(--mono);font-size:12px;">${gap>0?'+':''}${gap}</span>`;
+}
+
+// ── Injury risk ───────────────────────────────────────────────────────────────
+const INJURY_GP = {
+  'christian mccaffrey':[16,8,8],'tua tagovailoa':[13,12,12],
+  'travis etienne':[17,10,14],'kyren williams':[12,14,15],
+  'tj hockenson':[10,4,9],'davante adams':[17,16,14],
+  'rashee rice':[8,4,14],'george kittle':[13,16,14],
+  'mark andrews':[12,5,13],'cooper kupp':[7,6,12],
+  'mike evans':[17,17,16],'stefon diggs':[17,5,0],
+  'tyreek hill':[17,17,12],'deebo samuel':[12,10,11],
+  'dk metcalf':[17,15,16],'jordan love':[16,11,14],
+  'jalen hurts':[15,15,15],'brock purdy':[16,17,15],
+  'dak prescott':[17,11,16],'saquon barkley':[16,14,17],
+  'breece hall':[10,14,15],'javonte williams':[8,17,14],
+  'michael pittman':[17,16,13],'zach charbonnet':[16,13,13],
+  'rhamondre stevenson':[13,13,13],'dallas goedert':[12,12,14],
+  'austin ekeler':[10,16,14],
+};
+
+function injuryScore(name) {
+  const key=normalizeName(name);
+  const d=INJURY_GP[key];
+  if(!d) return {pct:75,label:'—',color:'var(--muted)'};
+  // Weighted: 2025=50%, 2024=30%, 2023=20%
+  const w=Math.round(((d[2]||0)*0.50+(d[1]||0)*0.30+(d[0]||0)*0.20)/17*100);
+  const label=w>=80?'Healthy':w>=60?'Moderate':'Risky';
+  const color=w>=80?'var(--accent)':w>=60?'var(--amber)':'var(--red)';
+  return {pct:w, label, color, gp:d};
+}
+
+function injuryBadge(name) {
+  const {pct,label,color}=injuryScore(name);
+  if(label==='—') return '';
+  return `<span title="Availability: ${pct}% weighted (2023-25)" style="color:${color};font-size:10px;font-weight:500;padding:1px 5px;border-radius:3px;margin-left:4px;background:${color}22;cursor:help;vertical-align:middle;font-family:var(--mono);">${pct}%</span>`;
+}
+
+function edgeBadge(edge) {
+  // edge is now a % of the board (positive = model ranks higher than consensus)
+  if (edge>=4)  return `<span class="edge-huge">▲ EDGE +${edge}%</span>`;
+  if (edge>=2)  return `<span class="edge-good">▲ Value +${edge}%</span>`;
+  if (edge>=1)  return `<span class="edge-slight">▲ +${edge}%</span>`;
+  if (edge<=-2) return `<span class="edge-neg">▼ ${edge}%</span>`;
+  return `<span class="edge-none">${edge>0?'+':''}${edge}%</span>`;
+}
+
+function updateCards() {
+  const badge=document.getElementById('consensus-badge');
+  if (badge) badge.textContent='FantasyPros ECR 6/24/2026';
+  const top=allPlayers[0];
+  // Edge cards: same filters as edge tab (top 200 consensus, min 8 ppg, skill pos)
+  const edgeCandidates=allPlayers.filter(p=>{
+    const cu=p.consensusRank<300?p.consensusRank:p.adpRank;
+    return cu<=250 && p.ppg>=8 && p.edge>0;
+  });
+  const topEdge=[...edgeCandidates].sort((a,b)=>b.edge-a.edge)[0];
+  const bigEdge=edgeCandidates.filter(p=>p.edge>=4).length;
+  // RZ leader: skill positions only
+  const topRZ=[...allPlayers].filter(p=>['RB','WR','TE'].includes(p.pos)).sort((a,b)=>b.rzTouches-a.rzTouches)[0];
+  document.getElementById('stat-cards').innerHTML=[
+    {label:'Players ranked',val:allPlayers.filter(p=>p.consensusRank<300).length, sub:`${allPlayers.filter(p=>p.tier===0&&p.consensusRank<300).length} elite tier`},
+    {label:'Top consensus',  val:top?top.name:'—',               sub:top?`${top.pos} · Consensus #${Math.round(top.consensusRank)}`:''},
+    {label:'Biggest edge',   val:topEdge?topEdge.name:'—',       sub:topEdge?`+${Math.round(topEdge.edge)} vs consensus`:''},
+    {label:'Edge plays',     val:bigEdge,                        sub:'Players with 4%+ edge score'},
+    {label:'RZ leader',      val:topRZ?topRZ.name:'—',           sub:topRZ?`${topRZ.rzTouches} RZ touches`:''},
+  ].map(c=>`<div class="card"><div class="card-label">${c.label}</div><div class="card-val" style="font-size:${typeof c.val==='number'?'26px':'15px'}">${c.val}</div><div class="card-sub">${c.sub}</div></div>`).join('');
+}
+
+function switchTab(tab) {
+  currentTab=tab;
+  sortCol=null; sortDir='desc'; // reset sort on tab change
+  ['edge','overall','model'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  document.getElementById('info-edge').style.display  = tab==='edge'  ?'block':'none';
+  document.getElementById('info-model').style.display = tab==='model' ?'block':'none';
+  renderTable();
+}
+
+function setPos(pos) {
+  currentPos=pos;
+  sortCol=null; sortDir='desc'; // reset sort on position change
+  ['ALL','QB','RB','WR','TE'].forEach(p=>document.getElementById('pb-'+p).classList.toggle('active',p===pos));
+  renderTable();
+}
+
+function valClass(v,h,m){ return v>=h?'val-high':v>=m?'val-mid':'val-low'; }
+
+// ─── Table render ─────────────────────────────────────────────────────────────
+// ── Sort helpers ──────────────────────────────────────────────────────────────
+function sortBy(col) {
+  if (sortCol === col) {
+    sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    sortCol = col;
+    sortDir = 'desc'; // default new column to descending
+  }
+  renderTable();
+}
+
+function applySort(data) {
+  if (!sortCol) return data;
+  return [...data].sort((a, b) => {
+    const av = a[sortCol] ?? -Infinity;
+    const bv = b[sortCol] ?? -Infinity;
+    return sortDir === 'desc' ? bv - av : av - bv;
+  });
+}
+
+function sortIcon(col) {
+  if (sortCol !== col) return '<span style="opacity:0.3;margin-left:3px;">↕</span>';
+  return sortDir === 'desc'
+    ? '<span style="margin-left:3px;color:var(--accent);">↓</span>'
+    : '<span style="margin-left:3px;color:var(--accent);">↑</span>';
+}
+
+
+function renderTable() {
+  const search  = document.getElementById('search').value.toLowerCase();
+  const minG    = parseInt(document.getElementById('min-games').value);
+  const edgeF   = document.getElementById('edge-filter').value;
+  const isQBOnly= currentPos==='QB';
+  const isSkill = ['RB','WR','TE'].includes(currentPos); // single skill pos selected
+  const isAll   = currentPos==='ALL';
+
+  let data=allPlayers.filter(p=>{
+    if (p.consensusRank>=999) return false;  // exclude players not in consensus
+    if (currentPos!=='ALL'&&p.pos!==currentPos) return false;
+    if (p.gp<minG) return false;
+    if (search&&!p.name.toLowerCase().includes(search)&&!p.team.toLowerCase().includes(search)) return false;
+    if (edgeF==='huge'&&p.edge<4) return false;
+    if (edgeF==='good'&&p.edge<2) return false;
+    if (edgeF==='pos' &&p.edge<1) return false;
+    // Edge tab: fix 2 (top 200 consensus only) + fix 4 (min 8 pts/game)
+    if (currentTab==='edge') {
+      const cUsed=p.consensusRank<300?p.consensusRank:p.adpRank;
+      if (cUsed>250) return false;       // fix 2: must be ranked inside top 250
+      if (p.ppg<8)   return false;       // fix 4: minimum 8 pts/game
+    }
+    return true;
+  });
+
+  // ── Sort logic ──
+  if (sortCol) {
+    // User clicked a header — override default sort
+    data = applySort(data);
+  } else if (currentTab==='edge') {
+    data=[...data].sort((a,b)=>b.edge-a.edge);
+  } else {
+    // Default: consensus rank ascending
+    data=[...data].sort((a,b)=>a.consensusRank-b.consensusRank);
+  }
+
+  document.getElementById('status').textContent=`${data.length} players`;
+
+  const thead=document.getElementById('table-head');
+  const tbody=document.getElementById('table-body');
+
+  // ── Headers ──
+  if (currentTab==='edge') {
+    thead.innerHTML=`<tr><th class="left" style="white-space:nowrap;">Rk</th><th class="left" style="white-space:nowrap;">Player</th><th class="left" style="white-space:nowrap;">Pos</th><th class="left" style="white-space:nowrap;">Team</th><th  onclick="sortBy('gp')" style="cursor:pointer;white-space:nowrap;">GP${sortIcon('gp')}</th><th  onclick="sortBy('ppg')" style="cursor:pointer;white-space:nowrap;">Pts/G${sortIcon('ppg')}</th><th  onclick="sortBy('totalTD')" style="cursor:pointer;white-space:nowrap;">TDs${sortIcon('totalTD')}</th><th  onclick="sortBy('totalTO')" style="cursor:pointer;white-space:nowrap;">TOs${sortIcon('totalTO')}</th><th  onclick="sortBy('consist')" style="cursor:pointer;white-space:nowrap;">Consist.${sortIcon('consist')}</th><th  onclick="sortBy('modelRank')" style="cursor:pointer;white-space:nowrap;">Model Rk${sortIcon('modelRank')}</th><th  style="white-space:nowrap;">${csvLoaded?'CSV Rk':'Consensus Rk'}</th><th  onclick="sortBy('edge')" style="cursor:pointer;white-space:nowrap;">Edge %${sortIcon('edge')}</th><th  style="white-space:nowrap;">Tier</th><th  onclick="sortBy('score')" style="cursor:pointer;white-space:nowrap;">Score${sortIcon('score')}</th></tr>`;
+  } else if (currentTab==='model') {
+    thead.innerHTML=`<tr><th class="left" style="white-space:nowrap;">Rk</th><th class="left" style="white-space:nowrap;">Player</th><th class="left" style="white-space:nowrap;">Pos</th><th class="left" style="white-space:nowrap;">Team</th><th  onclick="sortBy('consensusRank')" style="cursor:pointer;white-space:nowrap;">Consensus${sortIcon('consensusRank')}</th><th onclick="sortBy('adpRank')" style="cursor:pointer;white-space:nowrap;">ADP${sortIcon('adpRank')}</th><th onclick="sortBy('adpAvg')" style="cursor:pointer;white-space:nowrap;">ADP Avg${sortIcon('adpAvg')}</th><th onclick="sortBy('adpGap')" style="cursor:pointer;white-space:nowrap;">vs ADP${sortIcon('adpGap')}</th><th  onclick="sortBy('gp')" style="cursor:pointer;white-space:nowrap;">GP${sortIcon('gp')}</th><th  onclick="sortBy('ppg')" style="cursor:pointer;white-space:nowrap;">Pts/G${sortIcon('ppg')}</th><th  onclick="sortBy('totalTD')" style="cursor:pointer;white-space:nowrap;">TDs${sortIcon('totalTD')}</th><th  onclick="sortBy('totalTO')" style="cursor:pointer;white-space:nowrap;">TOs${sortIcon('totalTO')}</th><th  onclick="sortBy('consist')" style="cursor:pointer;white-space:nowrap;">Consist.${sortIcon('consist')}</th><th  onclick="sortBy('edge')" style="cursor:pointer;white-space:nowrap;">Edge %${sortIcon('edge')}</th><th  style="white-space:nowrap;">Tier</th><th  onclick="sortBy('score')" style="cursor:pointer;white-space:nowrap;">Score${sortIcon('score')}</th></tr>`;
+  } else if (isQBOnly) {
+    // QB position filter: full QB-specific columns
+    thead.innerHTML=`<tr><th class="left" style="white-space:nowrap;">Rk</th><th class="left" style="white-space:nowrap;">Player</th><th class="left" style="white-space:nowrap;">Pos</th><th class="left" style="white-space:nowrap;">Team</th><th  onclick="sortBy('consensusRank')" style="cursor:pointer;white-space:nowrap;">Consensus${sortIcon('consensusRank')}</th><th onclick="sortBy('adpRank')" style="cursor:pointer;white-space:nowrap;">ADP${sortIcon('adpRank')}</th><th onclick="sortBy('adpAvg')" style="cursor:pointer;white-space:nowrap;">ADP Avg${sortIcon('adpAvg')}</th><th onclick="sortBy('adpGap')" style="cursor:pointer;white-space:nowrap;">vs ADP${sortIcon('adpGap')}</th><th  onclick="sortBy('gp')" style="cursor:pointer;white-space:nowrap;">GP${sortIcon('gp')}</th><th  onclick="sortBy('ppg')" style="cursor:pointer;white-space:nowrap;">Pts/G${sortIcon('ppg')}</th><th  onclick="sortBy('cmpPct')" style="cursor:pointer;white-space:nowrap;">Cmp%${sortIcon('cmpPct')}</th><th  onclick="sortBy('passAttPG')" style="cursor:pointer;white-space:nowrap;">Pass Att/G${sortIcon('passAttPG')}</th><th  onclick="sortBy('rushAttPG')" style="cursor:pointer;white-space:nowrap;">Rush Att/G${sortIcon('rushAttPG')}</th><th  onclick="sortBy('rzPassAtt')" style="cursor:pointer;white-space:nowrap;">RZ Pass Att${sortIcon('rzPassAtt')}</th><th  onclick="sortBy('rzPassTd')" style="cursor:pointer;white-space:nowrap;">RZ Pass TD${sortIcon('rzPassTd')}</th><th  onclick="sortBy('rzRushAtt')" style="cursor:pointer;white-space:nowrap;">RZ Rush Att${sortIcon('rzRushAtt')}</th><th  onclick="sortBy('rzRushTd')" style="cursor:pointer;white-space:nowrap;">RZ Rush TD${sortIcon('rzRushTd')}</th><th  onclick="sortBy('totalTD')" style="cursor:pointer;white-space:nowrap;">TDs${sortIcon('totalTD')}</th><th  onclick="sortBy('totalTO')" style="cursor:pointer;white-space:nowrap;">TOs${sortIcon('totalTO')}</th><th  onclick="sortBy('edge')" style="cursor:pointer;white-space:nowrap;">Edge %${sortIcon('edge')}</th><th  style="white-space:nowrap;">Tier</th><th  onclick="sortBy('score')" style="cursor:pointer;white-space:nowrap;">Score${sortIcon('score')}</th></tr>`;
+  } else if (isSkill) {
+    // RB / WR / TE position filter: skill-specific columns
+    thead.innerHTML=`<tr><th class="left" style="white-space:nowrap;">Rk</th><th class="left" style="white-space:nowrap;">Player</th><th class="left" style="white-space:nowrap;">Pos</th><th class="left" style="white-space:nowrap;">Team</th><th  onclick="sortBy('consensusRank')" style="cursor:pointer;white-space:nowrap;">Consensus${sortIcon('consensusRank')}</th><th onclick="sortBy('adpRank')" style="cursor:pointer;white-space:nowrap;">ADP${sortIcon('adpRank')}</th><th onclick="sortBy('adpAvg')" style="cursor:pointer;white-space:nowrap;">ADP Avg${sortIcon('adpAvg')}</th><th onclick="sortBy('adpGap')" style="cursor:pointer;white-space:nowrap;">vs ADP${sortIcon('adpGap')}</th><th  onclick="sortBy('gp')" style="cursor:pointer;white-space:nowrap;">GP${sortIcon('gp')}</th><th  onclick="sortBy('ppg')" style="cursor:pointer;white-space:nowrap;">Pts/G${sortIcon('ppg')}</th><th  onclick="sortBy('tgtShare')" style="cursor:pointer;white-space:nowrap;">Tgt Share${sortIcon('tgtShare')}</th><th  onclick="sortBy('rzTouches')" style="cursor:pointer;white-space:nowrap;">RZ Tch${sortIcon('rzTouches')}</th><th  onclick="sortBy('rzTgtPct')" style="cursor:pointer;white-space:nowrap;">RZ Tgt%${sortIcon('rzTgtPct')}</th><th  onclick="sortBy('totalTD')" style="cursor:pointer;white-space:nowrap;">TDs${sortIcon('totalTD')}</th><th  onclick="sortBy('totalTO')" style="cursor:pointer;white-space:nowrap;">TOs${sortIcon('totalTO')}</th><th  onclick="sortBy('consist')" style="cursor:pointer;white-space:nowrap;">Consist.${sortIcon('consist')}</th><th  onclick="sortBy('edge')" style="cursor:pointer;white-space:nowrap;">Edge %${sortIcon('edge')}</th><th  style="white-space:nowrap;">Tier</th><th  onclick="sortBy('score')" style="cursor:pointer;white-space:nowrap;">Score${sortIcon('score')}</th></tr>`;
+  } else {
+    // ALL positions — overall consensus view
+    thead.innerHTML=`<tr><th class="left" style="white-space:nowrap;">Rk</th><th class="left" style="white-space:nowrap;">Player</th><th class="left" style="white-space:nowrap;">Pos</th><th class="left" style="white-space:nowrap;">Team</th><th  onclick="sortBy('consensusRank')" style="cursor:pointer;white-space:nowrap;">Consensus${sortIcon('consensusRank')}</th><th onclick="sortBy('adpRank')" style="cursor:pointer;white-space:nowrap;">ADP${sortIcon('adpRank')}</th><th onclick="sortBy('adpAvg')" style="cursor:pointer;white-space:nowrap;">ADP Avg${sortIcon('adpAvg')}</th><th onclick="sortBy('adpGap')" style="cursor:pointer;white-space:nowrap;">vs ADP${sortIcon('adpGap')}</th><th  onclick="sortBy('gp')" style="cursor:pointer;white-space:nowrap;">GP${sortIcon('gp')}</th><th  onclick="sortBy('ppg')" style="cursor:pointer;white-space:nowrap;">Pts/G${sortIcon('ppg')}</th><th  onclick="sortBy('totalTD')" style="cursor:pointer;white-space:nowrap;">TDs${sortIcon('totalTD')}</th><th  onclick="sortBy('totalTO')" style="cursor:pointer;white-space:nowrap;">TOs${sortIcon('totalTO')}</th><th  onclick="sortBy('consist')" style="cursor:pointer;white-space:nowrap;">Consist.${sortIcon('consist')}</th><th  onclick="sortBy('edge')" style="cursor:pointer;white-space:nowrap;">Edge %${sortIcon('edge')}</th><th  style="white-space:nowrap;">Tier</th><th  onclick="sortBy('score')" style="cursor:pointer;white-space:nowrap;">Score${sortIcon('score')}</th></tr>`;
+  }
+
+  if (!data.length) {
+    tbody.innerHTML=`<tr><td colspan="17" style="text-align:center;padding:40px;color:var(--muted);">No players match filters</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=data.slice(0,200).map((p,i)=>{
+    const tc='tier-'+p.tier;
+    const eb=edgeBadge(p.edge);
+    const cRk=isAll ? p.rank : (i+1);  // overall rank for ALL, positional rank for position tabs
+    const cConsensus=(p.consensusRank<999&&p.consensusDisplayRank)||'—';
+    const consistPct=Math.round(p.consist*100);
+
+    // ── Edge tab row ──
+    if (currentTab==='edge') {
+      return `<tr>
+        <td class="left"><span class="rank-num">${i+1}</span></td>
+        <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+        <td class="left"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
+        <td class="left"><span class="team-tag">${p.team}</span></td>
+        <td>${p.gp}</td><td>${p.ppg}</td>
+        <td class="${valClass(p.totalTD,12,7)}">${p.totalTD}</td>
+        <td class="${p.totalTO>=8?'val-neg':p.totalTO>=5?'val-mid':'val-low'}">${p.totalTO}</td>
+        <td class="${valClass(consistPct,70,45)}">${consistPct}%</td>
+        <td><span class="consensus-rank" style="color:var(--accent)">${p.modelRank}</span></td>
+        <td><span class="consensus-rank">${cConsensus}</span></td>
+        <td>${eb}</td>
+        <td><span class="tier-tag ${tc}">${TIER_LABELS[p.tier]}</span></td>
+        <td><span class="score-val">${p.score}</span></td>
+      </tr>`;
+    }
+
+    // ── QB position filter row ──
+    if (isQBOnly) {
+      return `<tr>
+        <td class="left"><span class="rank-num">${cRk}</span></td>
+        <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+        <td class="left"><span class="pos-tag pos-QB">QB</span></td>
+        <td class="left"><span class="team-tag">${p.team}</span></td>
+        <td><span class="consensus-rank">${cConsensus}</span></td>
+        <td>${adpCell(p.adpDisplayRank)}</td>
+        <td style="font-family:var(--mono);font-size:13px;color:var(--muted);">${p.adpAvg||'—'}</td>
+        <td>${adpGapBadge(p.adpGap)}</td>
+        <td>${p.gp}</td><td>${p.ppg}</td>
+        <td class="${valClass(p.cmpPct,68,60)}">${p.cmpPct}%</td>
+        <td class="${valClass(p.passAttPG,38,28)}">${p.passAttPG}</td>
+        <td class="${valClass(p.rushAttPG,6,3)}">${p.rushAttPG}</td>
+        <td class="${valClass(p.rzPassAtt,30,15)}">${p.rzPassAtt}</td>
+        <td class="${valClass(p.rzPassTd,12,6)}">${p.rzPassTd}</td>
+        <td class="${valClass(p.rzRushAtt,10,4)}">${p.rzRushAtt}</td>
+        <td class="${valClass(p.rzRushTd,6,2)}">${p.rzRushTd}</td>
+        <td class="${valClass(p.totalTD,40,28)}">${p.totalTD}</td>
+        <td class="${p.totalTO>=15?'val-neg':p.totalTO>=10?'val-mid':'val-low'}">${p.totalTO}</td>
+        <td>${eb}</td>
+        <td><span class="tier-tag ${tc}">${TIER_LABELS[p.tier]}</span></td>
+        <td><span class="score-val">${p.score}</span></td>
+      </tr>`;
+    }
+
+    // ── Skill position filter row (RB/WR/TE) ──
+    if (isSkill) {
+      return `<tr>
+        <td class="left"><span class="rank-num">${cRk}</span></td>
+        <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+        <td class="left"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
+        <td class="left"><span class="team-tag">${p.team}</span></td>
+        <td><span class="consensus-rank">${cConsensus}</span></td>
+        <td>${adpCell(p.adpDisplayRank)}</td>
+        <td style="font-family:var(--mono);font-size:13px;color:var(--muted);">${p.adpAvg||'—'}</td>
+        <td>${adpGapBadge(p.adpGap)}</td>
+        <td>${p.gp}</td><td>${p.ppg}</td>
+        <td class="${valClass(p.tgtShare,25,15)}">${p.tgtShare>0?p.tgtShare+'%':'—'}</td>
+        <td class="${valClass(p.rzTouches,40,20)}">${p.rzTouches}</td>
+        <td class="${valClass(p.rzTgtPct,18,10)}">${p.rzTgtPct>0?p.rzTgtPct+'%':'—'}</td>
+        <td class="${valClass(p.totalTD,12,7)}">${p.totalTD}</td>
+        <td class="${p.totalTO>=5?'val-neg':p.totalTO>=3?'val-mid':'val-low'}">${p.totalTO}</td>
+        <td class="${valClass(consistPct,70,45)}">${consistPct}%</td>
+        <td>${eb}</td>
+        <td><span class="tier-tag ${tc}">${TIER_LABELS[p.tier]}</span></td>
+        <td><span class="score-val">${p.score}</span></td>
+      </tr>`;
+    }
+
+    // ── ALL positions — overall consensus board ──
+    return `<tr>
+      <td class="left"><span class="rank-num">${cRk}</span></td>
+      <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+      <td class="left"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
+      <td class="left"><span class="team-tag">${p.team}</span></td>
+      <td><span class="consensus-rank">${cConsensus}</span></td>
+      <td>${adpCell(p.adpDisplayRank)}</td>
+      <td style="font-family:var(--mono);font-size:13px;color:var(--muted);">${p.adpAvg||'—'}</td>
+      <td>${adpGapBadge(p.adpGap)}</td>
+      <td>${p.gp}</td><td>${p.ppg}</td>
+      <td class="${valClass(p.totalTD,12,7)}">${p.totalTD}</td>
+      <td class="${p.totalTO>=8?'val-neg':p.totalTO>=5?'val-mid':'val-low'}">${p.totalTO}</td>
+      <td class="${valClass(consistPct,70,45)}">${consistPct}%</td>
+      <td>${eb}</td>
+      <td><span class="tier-tag ${tc}">${TIER_LABELS[p.tier]}</span></td>
+      <td><span class="score-val">${p.score}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+loadData();
+</script>
+</body>
+</html>
