@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Compare Players · Fantasy 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0f11;--surface:#161a1e;--surface2:#1e2329;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#eef0f2;--muted:#7a8899;
+  --accent:#00e5a0;--accent-dim:rgba(0,229,160,0.12);
+  --red:#ff5e5e;--amber:#ffb547;--blue:#4da6ff;--purple:#7F77DD;
+  --font:'Inter',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;}
+nav{border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+nav a{text-decoration:none;}
+.nav-link{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;border:1px solid var(--border2);color:var(--muted);transition:all 0.15s;}
+.nav-link:hover{color:var(--text);}
+.nav-link.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.container{max-width:1100px;margin:0 auto;padding:24px;}
+input,select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;padding:8px 12px;}
+input:focus,select:focus{border-color:var(--accent);}
+.search-wrap{position:relative;}
+.autocomplete{position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;z-index:100;max-height:220px;overflow-y:auto;margin-top:4px;display:none;}
+.ac-item{padding:10px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;}
+.ac-item:hover{background:var(--surface);}
+.pos-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;font-family:var(--mono);}
+.pos-QB{background:rgba(77,166,255,0.15);color:#4da6ff;}
+.pos-RB{background:rgba(0,229,160,0.12);color:#00e5a0;}
+.pos-WR{background:rgba(180,143,255,0.15);color:#b48fff;}
+.pos-TE{background:rgba(255,181,71,0.15);color:#ffb547;}
+.compare-grid{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:24px;}
+.col-header{background:var(--surface);padding:20px;text-align:center;border-bottom:1px solid var(--border);}
+.col-label{background:var(--surface2);padding:12px 16px;text-align:center;border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.4px;display:flex;align-items:center;justify-content:center;}
+.col-val{padding:14px 16px;text-align:center;border-bottom:1px solid var(--border);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;}
+.col-val.winner{color:var(--accent);}
+.col-val.loser{color:var(--muted);}
+.advantage{font-size:11px;font-family:var(--mono);color:var(--muted);}
+.loading{text-align:center;padding:3rem;color:var(--muted);}
+.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin:0 3px;animation:pulse 1.2s ease-in-out infinite;}
+.loading-dot:nth-child(2){animation-delay:0.2s;}.loading-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+.edge-huge{background:rgba(0,229,160,0.12);color:var(--accent);font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;font-family:var(--mono);}
+.edge-good{background:rgba(77,166,255,0.12);color:#4da6ff;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;font-family:var(--mono);}
+.verdict{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-top:20px;}
+.verdict h3{font-size:15px;font-weight:600;margin-bottom:10px;}
+.verdict p{font-size:13px;color:var(--muted);line-height:1.7;}
+.bar-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;width:100%;}
+.bar-fill{height:6px;border-radius:3px;}
+@media(max-width:640px){.container{padding:16px;}.compare-grid{grid-template-columns:1fr 60px 1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" style="font-size:18px;font-weight:600;color:var(--text);letter-spacing:-0.3px;">Fantasy <span style="color:var(--accent);">2026</span></a>
+  <div style="display:flex;gap:4px;">
+    <a href="index.html" class="nav-link">Rankings</a>
+    <a href="compare.html" class="nav-link active">Compare</a>
+    <a href="history.html" class="nav-link">Historical</a>
+    <a href="roster.html" class="nav-link">Roster</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div style="margin-bottom:24px;">
+    <h1 style="font-size:22px;font-weight:600;margin-bottom:4px;">Player Comparison</h1>
+    <p style="font-size:13px;color:var(--muted);">Search two players to compare their 2025 stats, model scores, and draft value side by side.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:16px;align-items:center;">
+    <div class="search-wrap">
+      <input type="text" id="search-a" placeholder="Search player A..." style="width:100%;" oninput="searchPlayer('a')" autocomplete="off"/>
+      <div class="autocomplete" id="ac-a"></div>
+    </div>
+    <div style="text-align:center;font-size:13px;font-weight:600;color:var(--muted);">VS</div>
+    <div class="search-wrap">
+      <input type="text" id="search-b" placeholder="Search player B..." style="width:100%;" oninput="searchPlayer('b')" autocomplete="off"/>
+      <div class="autocomplete" id="ac-b"></div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading" style="display:none;">
+    <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+    <p style="margin-top:12px;font-size:13px;">Loading player data...</p>
+  </div>
+
+  <div id="compare-area" style="display:none;"></div>
+
+  <p id="placeholder" style="text-align:center;padding:3rem;color:var(--muted);font-size:13px;">Search for two players above to compare them</p>
+</div>
+
+<script>
+const PC={QB:'#4da6ff',RB:'#00e5a0',WR:'#b48fff',TE:'#ffb547'};
+let allPlayers=[], playerA=null, playerB=null;
+let meta={};
+
+function normalizeName(n){
+  let s=n.toLowerCase().replace(/[^a-z\s']/g,'').replace(/\s+/g,' ').trim();
+  return s.replace(/\s+(i{1,3}|iv|v|jr\.?|sr\.?)$/,'').trim();
+}
+function halfPPR(s){
+  if(!s)return 0;
+  return Math.max(0,
+    (s.pass_yd||0)*0.04+(s.pass_td||0)*4-(s.pass_int||0)*2+
+    (s.rush_yd||0)*0.1+(s.rush_td||0)*6+
+    (s.rec_yd||0)*0.1+(s.rec_td||0)*6+(s.rec||0)*0.5-
+    (s.fum_lost||0)*2);
+}
+function norm(arr,key){
+  const v=arr.map(p=>p[key]),mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1;
+  arr.forEach(p=>p['_n_'+key]=(p[key]-mn)/r);
+}
+function consist(wpts){
+  if(wpts.length<2)return 0.5;
+  const mean=wpts.reduce((a,b)=>a+b,0)/wpts.length;
+  if(mean<0.5)return 0;
+  const sd=Math.sqrt(wpts.reduce((a,b)=>a+(b-mean)**2,0)/wpts.length);
+  return Math.max(0,1-(sd/mean)*0.6);
+}
+
+async function init(){
+  document.getElementById('loading').style.display='block';
+  document.getElementById('placeholder').style.display='none';
+  const r=await fetch('https://api.sleeper.app/v1/players/nfl');
+  const d=await r.json();
+  Object.values(d).forEach(p=>{
+    if(p.active&&['QB','RB','WR','TE'].includes(p.position)&&p.team){
+      meta[p.player_id]={name:`${p.first_name||''} ${p.last_name||''}`.trim(),pos:p.position,team:p.team,adp:p.search_rank||999};
+    }
+  });
+
+  const weeks=Array.from({length:18},(_,i)=>i+1);
+  const weekData=await Promise.all(weeks.map(w=>
+    fetch(`https://api.sleeper.app/v1/stats/nfl/regular/2025/${w}`)
+      .then(r=>r.ok?r.json():{}).catch(()=>({}))
+  ));
+
+  const agg={},teamTgts={};
+  weekData.forEach(wk=>{
+    if(Object.keys(wk).length<20)return;
+    Object.entries(wk).forEach(([pid,s])=>{
+      if(!s)return;
+      const m=meta[pid];if(!m)return;
+      teamTgts[m.team]=(teamTgts[m.team]||0)+(s.rec_tgt||0);
+    });
+    Object.entries(wk).forEach(([pid,s])=>{
+      if(!s)return;
+      const m=meta[pid];
+      if(!m||!['QB','RB','WR','TE'].includes(m.pos))return;
+      const pts=halfPPR(s);
+      const played=pts>0.5||(s.rush_att>0)||(s.rec_tgt>0)||(s.pass_att>0);
+      if(!played)return;
+      if(!agg[pid])agg[pid]={gp:0,wpts:[],pass_yd:0,pass_td:0,pass_int:0,pass_att:0,pass_cmp:0,
+        rush_yd:0,rush_td:0,rush_att:0,rec:0,rec_yd:0,rec_td:0,rec_tgt:0,
+        fum_lost:0,rz_rush_att:0,rz_rec_tgt:0,qb_pass_rz_att:0,qb_pass_rz_td:0,qb_rush_rz_att:0};
+      const a=agg[pid];
+      a.gp++;a.wpts.push(pts);
+      a.pass_yd+=(s.pass_yd||0);a.pass_td+=(s.pass_td||0);a.pass_int+=(s.pass_int||0);a.pass_att+=(s.pass_att||0);a.pass_cmp+=(s.pass_cmp||0);
+      a.rush_yd+=(s.rush_yd||0);a.rush_td+=(s.rush_td||0);a.rush_att+=(s.rush_att||0);
+      a.rec+=(s.rec||0);a.rec_yd+=(s.rec_yd||0);a.rec_td+=(s.rec_td||0);a.rec_tgt+=(s.rec_tgt||0);
+      a.fum_lost+=(s.fum_lost||0);
+      a.rz_rush_att+=(s.rush_rz_att||0);a.rz_rec_tgt+=(s.rec_rz_tgt||0);
+      a.qb_pass_rz_att+=(s.pass_rz_att||0);a.qb_pass_rz_td+=(s.pass_rz_td||0);a.qb_rush_rz_att+=(s.rush_rz_att||0);
+    });
+  });
+
+  const players=[];
+  Object.entries(agg).forEach(([pid,a])=>{
+    const m=meta[pid];if(!m||a.gp<1)return;
+    const totalPts=halfPPR(a);
+    const ppg=totalPts/a.gp;
+    if(ppg<1)return;
+    const tt=teamTgts[m.team]||1;
+    const tgtShare=Math.min(1,a.rec_tgt/tt);
+    const rzTouches=a.rz_rush_att+a.rz_rec_tgt;
+    const rzTgtPct=a.rec_tgt>0?a.rz_rec_tgt/a.rec_tgt:0;
+    const con=consist(a.wpts);
+    const cmpPct=a.pass_att>0?a.pass_cmp/a.pass_att:0;
+    const totalTD=(a.pass_td||0)+(a.rush_td||0)+(a.rec_td||0);
+    const totalTO=(a.pass_int||0)+(a.fum_lost||0);
+    players.push({
+      pid,name:m.name,pos:m.pos,team:m.team,adpRank:m.adp,
+      gp:a.gp,ppg:Math.round(ppg*10)/10,
+      totalPts:Math.round(totalPts*10)/10,totalTD,totalTO,
+      tgtShare:Math.round(tgtShare*1000)/10,tgtShare_raw:tgtShare,
+      rzTouches,rzTgtPct:Math.round(rzTgtPct*1000)/10,rzTgtPct_raw:rzTgtPct,
+      consist:Math.round(con*100),consist_raw:con,
+      cmpPct:Math.round(cmpPct*1000)/10,
+      passAttPG:Math.round(a.pass_att/a.gp*10)/10,
+      rushAttPG:Math.round(a.rush_att/a.gp*10)/10,
+      rzPassAtt:a.qb_pass_rz_att,rzPassTd:a.qb_pass_rz_td,rzRushAtt:a.qb_rush_rz_att,
+      passYdPG:Math.round(a.pass_yd/a.gp),
+      rushYdPG:Math.round(a.rush_yd/a.gp),
+      recYdPG:Math.round(a.rec_yd/a.gp),
+      recPerG:Math.round(a.rec/a.gp*10)/10,
+      score:0,modelRank:0,
+    });
+  });
+
+  // Score each position group
+  ['QB','RB','WR','TE'].forEach(pos=>{
+    const g=players.filter(p=>p.pos===pos);
+    if(!g.length)return;
+    if(pos==='QB'){
+      ['ppg','cmpPct','passAttPG','rushAttPG','rzPassAtt','rzPassTd','rzRushAtt'].forEach(k=>norm(g,k));
+      g.forEach(p=>{p.score=Math.round((p._n_ppg*0.30+p._n_cmpPct*0.15+p._n_passAttPG*0.15+p._n_rzPassTd*0.15+p._n_rzPassAtt*0.10+p._n_rushAttPG*0.10+p._n_rzRushAtt*0.05)*100);});
+    } else if(pos==='RB'){
+      ['ppg','tgtShare_raw','rzTouches','rzTgtPct_raw','consist_raw'].forEach(k=>norm(g,k));
+      g.forEach(p=>{p.score=Math.round((p._n_rzTouches*0.30+p._n_ppg*0.25+p._n_tgtShare_raw*0.20+p._n_rzTgtPct_raw*0.15+p._n_consist_raw*0.10)*100);});
+    } else {
+      ['ppg','tgtShare_raw','rzTouches','rzTgtPct_raw','consist_raw'].forEach(k=>norm(g,k));
+      g.forEach(p=>{p.score=Math.round((p._n_tgtShare_raw*0.30+p._n_rzTgtPct_raw*0.25+p._n_ppg*0.25+p._n_rzTouches*0.10+p._n_consist_raw*0.10)*100);});
+    }
+    const sorted=[...g].sort((a,b)=>b.score-a.score);
+    sorted.forEach((p,i)=>p.modelRank=i+1);
+  });
+
+  allPlayers=players;
+  document.getElementById('loading').style.display='none';
+  document.getElementById('placeholder').style.display='block';
+}
+
+function searchPlayer(side){
+  const q=document.getElementById(`search-${side}`).value.toLowerCase().trim();
+  const ac=document.getElementById(`ac-${side}`);
+  if(q.length<2){ac.style.display='none';return;}
+  const matches=allPlayers.filter(p=>p.name.toLowerCase().includes(q)).slice(0,8);
+  if(!matches.length){ac.style.display='none';return;}
+  ac.style.display='block';
+  ac.innerHTML=matches.map(p=>`
+    <div class="ac-item" onclick="selectPlayer('${side}','${p.pid}')">
+      <span class="pos-tag pos-${p.pos}">${p.pos}</span>
+      <span style="font-weight:500;">${p.name}</span>
+      <span style="color:var(--muted);font-size:12px;font-family:var(--mono);">${p.team}</span>
+    </div>`).join('');
+}
+
+function selectPlayer(side,pid){
+  const p=allPlayers.find(x=>x.pid===pid);
+  if(!p)return;
+  if(side==='a') playerA=p; else playerB=p;
+  document.getElementById(`search-${side}`).value=p.name;
+  document.getElementById(`ac-${side}`).style.display='none';
+  if(playerA&&playerB) renderCompare();
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-wrap')){
+    document.querySelectorAll('.autocomplete').forEach(a=>a.style.display='none');
+  }
+});
+
+function bar(val,max,color){
+  const pct=Math.min(100,Math.round(val/max*100));
+  return `<div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>`;
+}
+
+function renderCompare(){
+  const a=playerA,b=playerB;
+  document.getElementById('placeholder').style.display='none';
+  document.getElementById('compare-area').style.display='block';
+
+  function row(label, aVal, bVal, aRaw, bRaw, suffix='', maxVal=null) {
+    const aWins = aRaw > bRaw;
+    const bWins = bRaw > aRaw;
+    const tied  = aRaw === bRaw;
+    const maxV  = maxVal || Math.max(aRaw, bRaw, 1);
+    const aColor = PC[a.pos] || '#4da6ff';
+    const bColor = PC[b.pos] || '#b48fff';
+    return `
+      <div class="col-val ${aWins&&!tied?'winner':bWins?'loser':''}" style="flex-direction:column;gap:6px;">
+        <span>${aVal}${suffix}</span>
+        ${bar(aRaw, maxV, aColor)}
+      </div>
+      <div class="col-label">${label}</div>
+      <div class="col-val ${bWins&&!tied?'winner':aWins?'loser':''}" style="flex-direction:column;gap:6px;">
+        <span>${bVal}${suffix}</span>
+        ${bar(bRaw, maxV, bColor)}
+      </div>`;
+  }
+
+  // Count who wins each category
+  const cats=[
+    [a.ppg, b.ppg], [a.totalPts, b.totalPts], [a.totalTD, b.totalTD],
+    [a.rzTouches, b.rzTouches], [a.tgtShare_raw, b.tgtShare_raw],
+    [a.rzTgtPct_raw, b.rzTgtPct_raw], [a.consist, b.consist], [a.score, b.score]
+  ];
+  const aWins=cats.filter(([x,y])=>x>y).length;
+  const bWins=cats.filter(([x,y])=>y>x).length;
+  const winner=aWins>bWins?a:bWins>aWins?b:null;
+
+  const aTag=`<span class="pos-tag pos-${a.pos}">${a.pos}</span>`;
+  const bTag=`<span class="pos-tag pos-${b.pos}">${b.pos}</span>`;
+
+  document.getElementById('compare-area').innerHTML=`
+    <div class="compare-grid">
+      <div class="col-header">
+        <div style="font-size:18px;font-weight:600;margin-bottom:4px;">${a.name}</div>
+        <div style="display:flex;gap:6px;justify-content:center;">${aTag}<span style="font-size:12px;color:var(--muted);font-family:var(--mono);">${a.team}</span></div>
+      </div>
+      <div class="col-label" style="background:var(--bg);"></div>
+      <div class="col-header">
+        <div style="font-size:18px;font-weight:600;margin-bottom:4px;">${b.name}</div>
+        <div style="display:flex;gap:6px;justify-content:center;">${bTag}<span style="font-size:12px;color:var(--muted);font-family:var(--mono);">${b.team}</span></div>
+      </div>
+
+      ${row('Games Played', a.gp, b.gp, a.gp, b.gp, '', 18)}
+      ${row('Pts / Game', a.ppg, b.ppg, a.ppg, b.ppg, '', 35)}
+      ${row('Total Pts (2025)', a.totalPts, b.totalPts, a.totalPts, b.totalPts)}
+      ${row('Total TDs', a.totalTD, b.totalTD, a.totalTD, b.totalTD, '', 50)}
+      ${row('Turnovers', a.totalTO, b.totalTO, -a.totalTO, -b.totalTO, '', 20)}
+      ${row('RZ Touches', a.rzTouches, b.rzTouches, a.rzTouches, b.rzTouches)}
+      ${row('Target Share', a.tgtShare, b.tgtShare, a.tgtShare_raw, b.tgtShare_raw, '%')}
+      ${row('RZ Target %', a.rzTgtPct, b.rzTgtPct, a.rzTgtPct_raw, b.rzTgtPct_raw, '%')}
+      ${a.pos==='QB'||b.pos==='QB'?row('Completion %', a.cmpPct+'%', b.cmpPct+'%', a.cmpPct, b.cmpPct):''}
+      ${row('Consistency', a.consist+'%', b.consist+'%', a.consist, b.consist)}
+      ${row('Model Score', a.score, b.score, a.score, b.score)}
+      ${row('ADP', a.adpRank<900?a.adpRank:'—', b.adpRank<900?b.adpRank:'—', -(a.adpRank<900?a.adpRank:999), -(b.adpRank<900?b.adpRank:999))}
+    </div>
+
+    <div class="verdict">
+      <h3>${winner?`📊 Model favors ${winner.name}`:'📊 Too close to call'}</h3>
+      <p>${winner
+        ? `${winner.name} wins <strong style="color:var(--text)">${winner===a?aWins:bWins} of ${cats.length}</strong> statistical categories. `
+        : `${a.name} and ${b.name} are evenly matched across statistical categories. `}
+      ${a.pos!==b.pos
+        ? `Note: these players play different positions (${a.pos} vs ${b.pos}), so direct comparison has limits — factor in positional scarcity for your league.`
+        : `Both are ${a.pos}s, so this is a true apples-to-apples comparison.`}
+      ${a.adpRank<900&&b.adpRank<900
+        ? ` ADP suggests <strong style="color:var(--text)">${a.adpRank<b.adpRank?a.name:b.name}</strong> is being drafted earlier — if the model disagrees, that's your edge.`
+        : ''}</p>
+    </div>`;
+}
+
+init();
+</script>
+</body>
+</html>
