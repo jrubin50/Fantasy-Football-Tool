@@ -785,3 +785,14 @@ async function fetchSleeperSeasonStats(season) {
       .then(r=>r.ok?r.json():{}).catch(()=>({})))
   );
 }
+
+// ─── Trade value ─────────────────────────────────────────────────────────────
+// Converts consensus rank into a decaying value scale, so a gap at the top of
+// the board (rank 1 vs rank 12) matters far more than an equally-sized gap
+// deep in the board (rank 200 vs rank 212) — the same shape real trade
+// calculators use. Unranked players are treated as replacement-level (rank 300,
+// the bottom of the consensus board) rather than worthless.
+function tradeValue(consensusRank) {
+  const rank = (consensusRank!=null && consensusRank<999) ? consensusRank : 300;
+  return Math.round(1000/(rank+10));
+}

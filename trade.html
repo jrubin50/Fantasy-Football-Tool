@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Trade Calculator · Fantasy 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0f11;--surface:#161a1e;--surface2:#1e2329;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#eef0f2;--muted:#7a8899;
+  --accent:#00e5a0;--accent-dim:rgba(0,229,160,0.12);
+  --red:#ff5e5e;--amber:#ffb547;--blue:#4da6ff;--purple:#7F77DD;
+  --font:'Inter',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;}
+nav{border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+nav a{text-decoration:none;}
+.nav-link{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;border:1px solid var(--border2);color:var(--muted);transition:all 0.15s;}
+.nav-link:hover{color:var(--text);}
+.nav-link.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.container{max-width:1100px;margin:0 auto;padding:24px;}
+input,select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;padding:8px 12px;}
+input:focus,select:focus{border-color:var(--accent);}
+.search-wrap{position:relative;}
+.autocomplete{position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;z-index:100;max-height:220px;overflow-y:auto;margin-top:4px;display:none;}
+.ac-item{padding:10px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;}
+.ac-item:hover{background:var(--surface);}
+.ac-item .ac-sub{margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono);}
+.pos-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;font-family:var(--mono);flex-shrink:0;}
+.pos-QB{background:rgba(77,166,255,0.15);color:#4da6ff;}
+.pos-RB{background:rgba(0,229,160,0.12);color:#00e5a0;}
+.pos-WR{background:rgba(180,143,255,0.15);color:#b48fff;}
+.pos-TE{background:rgba(255,181,71,0.15);color:#ffb547;}
+.loading{text-align:center;padding:3rem;color:var(--muted);}
+.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin:0 3px;animation:pulse 1.2s ease-in-out infinite;}
+.loading-dot:nth-child(2){animation-delay:0.2s;}.loading-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+.trade-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;}
+.trade-side{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.trade-side h3{font-size:14px;font-weight:600;margin-bottom:12px;}
+.trade-list{margin-top:12px;display:flex;flex-direction:column;gap:8px;min-height:40px;}
+.trade-empty{font-size:12px;color:var(--muted);padding:10px 0;text-align:center;border:1px dashed var(--border2);border-radius:8px;}
+.trade-chip{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);}
+.trade-chip .name{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.trade-chip .sub{font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+.trade-chip .val{font-family:var(--mono);font-weight:600;color:var(--accent);font-size:13px;min-width:28px;text-align:right;}
+.trade-chip .rm{cursor:pointer;color:var(--muted);font-size:16px;line-height:1;padding:0 2px;}
+.trade-chip .rm:hover{color:var(--red);}
+.edge-note{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:2px;cursor:help;flex-shrink:0;}
+.edge-buy{background:rgba(0,229,160,0.15);color:var(--accent);}
+.edge-sell{background:rgba(255,94,94,0.15);color:var(--red);}
+.side-total{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:baseline;justify-content:space-between;}
+.side-total .label{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;}
+.side-total .num{font-size:24px;font-weight:600;}
+.verdict{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-top:20px;display:none;}
+.verdict h3{font-size:16px;font-weight:600;margin-bottom:8px;}
+.verdict p{font-size:13px;color:var(--muted);line-height:1.6;}
+.balance-bar{height:10px;border-radius:5px;background:var(--surface2);overflow:hidden;display:flex;margin-top:14px;}
+.balance-fill-a{background:var(--blue);height:100%;}
+.balance-fill-b{background:var(--purple);height:100%;}
+@media(max-width:720px){.container{padding:16px;}.trade-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" style="font-size:18px;font-weight:600;color:var(--text);letter-spacing:-0.3px;">Fantasy <span style="color:var(--accent);">2026</span></a>
+  <div style="display:flex;gap:4px;">
+    <a href="index.html" class="nav-link">Rankings</a>
+    <a href="compare.html" class="nav-link">Compare</a>
+    <a href="history.html" class="nav-link">Historical</a>
+    <a href="roster.html" class="nav-link">Roster</a>
+    <a href="trade.html" class="nav-link active">Trade</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div style="margin-bottom:20px;">
+    <h1 style="font-size:22px;font-weight:600;margin-bottom:4px;">Trade Calculator</h1>
+    <p style="font-size:13px;color:var(--muted);max-width:640px;">
+      Add any number of players to each side. Value is based on consensus rank on a decaying
+      scale — the gap between rank 1 and rank 12 matters far more than the same-size gap between
+      rank 200 and rank 212, same as how real trade value charts weight draft capital.
+      <span style="color:var(--accent);">▲ Buy</span> / <span style="color:var(--red);">▼ Sell</span>
+      badges flag players our model rates meaningfully differently than consensus.
+    </p>
+  </div>
+
+  <div id="loading" class="loading">
+    <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+    <p style="margin-top:12px;font-size:13px;">Loading player data...</p>
+  </div>
+
+  <div id="trade-area" style="display:none;">
+    <div class="trade-grid">
+      <div class="trade-side">
+        <h3>Side A gives up</h3>
+        <div class="search-wrap">
+          <input type="text" id="search-a" placeholder="Search a player to add..." autocomplete="off" oninput="searchPlayer('a')"/>
+          <div class="autocomplete" id="ac-a"></div>
+        </div>
+        <div class="trade-list" id="list-a"></div>
+        <div class="side-total">
+          <span class="label">Total value</span>
+          <span class="num" id="total-a" style="color:var(--blue);">0</span>
+        </div>
+      </div>
+      <div class="trade-side">
+        <h3>Side B gives up</h3>
+        <div class="search-wrap">
+          <input type="text" id="search-b" placeholder="Search a player to add..." autocomplete="off" oninput="searchPlayer('b')"/>
+          <div class="autocomplete" id="ac-b"></div>
+        </div>
+        <div class="trade-list" id="list-b"></div>
+        <div class="side-total">
+          <span class="label">Total value</span>
+          <span class="num" id="total-b" style="color:var(--purple);">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict"></div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// normalizeName, halfPPR, norm, consistScore, rzFields, scoreAllPositions,
+// assignConsensus, assignAdp, computeEdge, tradeValue all come from shared.js
+let allPlayers=[], meta={};
+let sideA=[], sideB=[];
+
+async function init(){
+  meta=await fetchSleeperPlayerMeta();
+  const weekData=await fetchSleeperSeasonStats(2025);
+
+  const agg={},teamTgts={};
+  weekData.forEach(wk=>{
+    if(Object.keys(wk).length<20)return;
+    Object.entries(wk).forEach(([pid,s])=>{
+      if(!s)return;
+      const m=meta[pid];if(!m)return;
+      teamTgts[m.team]=(teamTgts[m.team]||0)+(s.rec_tgt||0);
+    });
+    Object.entries(wk).forEach(([pid,s])=>{
+      if(!s)return;
+      const m=meta[pid];
+      if(!m||!['QB','RB','WR','TE'].includes(m.pos))return;
+      const pts=halfPPR(s);
+      const played=pts>0.5||(s.rush_att>0)||(s.rec_tgt>0)||(s.pass_att>0);
+      if(!played)return;
+      if(!agg[pid])agg[pid]={gp:0,wpts:[],pass_att:0,pass_cmp:0,rush_att:0,rec_tgt:0,
+        rz_rush_att:0,rz_rec_tgt:0,qb_pass_rz_att:0,qb_pass_rz_td:0,qb_rush_rz_att:0};
+      const a=agg[pid];
+      a.gp++;a.wpts.push(pts);
+      a.pass_att+=(s.pass_att||0);a.pass_cmp+=(s.pass_cmp||0);a.rush_att+=(s.rush_att||0);
+      a.rec_tgt+=(s.rec_tgt||0);
+      const rz=rzFields(s);
+      a.rz_rush_att+=rz.rzRushAtt;a.rz_rec_tgt+=rz.rzRecTgt;
+      a.qb_pass_rz_att+=rz.rzPassAtt;a.qb_pass_rz_td+=rz.rzPassTd;a.qb_rush_rz_att+=rz.rzRushAtt;
+    });
+  });
+
+  const players=[];
+  Object.entries(agg).forEach(([pid,a])=>{
+    const m=meta[pid];if(!m||a.gp<1)return;
+    const ppg=a.wpts.reduce((x,y)=>x+y,0)/a.gp;
+    if(ppg<2)return;
+    const tt=teamTgts[m.team]||1;
+    const tgtShare=Math.min(1,a.rec_tgt/tt);
+    const rzTouches=a.rz_rush_att+a.rz_rec_tgt;
+    const rzTgtPct=a.rec_tgt>0?a.rz_rec_tgt/a.rec_tgt:0;
+    const con=consistScore(a.wpts);
+    players.push({pid,name:m.name,pos:m.pos,team:m.team,
+      gp:a.gp,ppg:Math.round(ppg*10)/10,
+      tgtShare_raw:tgtShare,rzTouches,rzTgtPct_raw:rzTgtPct,consist_raw:con,
+      cmpPct_raw:a.pass_att>0?a.pass_cmp/a.pass_att:0,
+      passAttPG_raw:a.pass_att/a.gp,rushAttPG_raw:a.rush_att/a.gp,
+      rzPassAtt_raw:a.qb_pass_rz_att,rzPassTd_raw:a.qb_pass_rz_td,rzRushAtt_raw:a.qb_rush_rz_att,
+      score:0,modelRank:0,edge:0});
+  });
+
+  scoreAllPositions(players);
+  assignConsensus(players);
+  assignAdp(players);
+  computeEdge(players);
+  players.forEach(p=>{ p.tradeVal=tradeValue(p.consensusRank); });
+
+  allPlayers=players.sort((a,b)=> b.tradeVal!==a.tradeVal ? b.tradeVal-a.tradeVal : a.name.localeCompare(b.name));
+  document.getElementById('loading').style.display='none';
+  document.getElementById('trade-area').style.display='block';
+}
+
+function searchPlayer(side){
+  const q=document.getElementById(`search-${side}`).value.toLowerCase().trim();
+  const ac=document.getElementById(`ac-${side}`);
+  if(q.length<2){ac.style.display='none';return;}
+  const already=(side==='a'?sideA:sideB).map(p=>p.pid);
+  const matches=allPlayers.filter(p=>p.name.toLowerCase().includes(q)&&!already.includes(p.pid)).slice(0,8);
+  if(!matches.length){ac.style.display='none';return;}
+  ac.style.display='block';
+  ac.innerHTML=matches.map(p=>`
+    <div class="ac-item" onclick="addPlayer('${side}','${p.pid}')">
+      <span class="pos-tag pos-${p.pos}">${p.pos}</span>
+      <span style="font-weight:500;">${p.name}</span>
+      <span class="ac-sub">${p.team} · ${p.consensusRank<999?'#'+p.consensusDisplayRank:'unranked'}</span>
+    </div>`).join('');
+}
+
+function addPlayer(side,pid){
+  const p=allPlayers.find(x=>x.pid===pid);
+  if(!p)return;
+  if(side==='a') sideA.push(p); else sideB.push(p);
+  document.getElementById(`search-${side}`).value='';
+  document.getElementById(`ac-${side}`).style.display='none';
+  render();
+}
+
+function removePlayer(side,pid){
+  if(side==='a') sideA=sideA.filter(p=>p.pid!==pid);
+  else sideB=sideB.filter(p=>p.pid!==pid);
+  render();
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-wrap')){
+    document.querySelectorAll('.autocomplete').forEach(a=>a.style.display='none');
+  }
+});
+
+function edgeNote(p){
+  if(p.edge>=4) return `<span class="edge-note edge-buy" title="Model ranks this player ${p.edge}% better than consensus">▲ Buy</span>`;
+  if(p.edge<=-4) return `<span class="edge-note edge-sell" title="Consensus ranks this player ${Math.abs(p.edge)}% higher than our model">▼ Sell</span>`;
+  return '';
+}
+
+function renderChip(p,side){
+  return `<div class="trade-chip">
+    <span class="pos-tag pos-${p.pos}">${p.pos}</span>
+    <span class="name">${p.name}${edgeNote(p)}</span>
+    <span class="sub">${p.consensusRank<999?'#'+p.consensusDisplayRank:'—'}</span>
+    <span class="val">${p.tradeVal}</span>
+    <span class="rm" onclick="removePlayer('${side}','${p.pid}')" title="Remove">&times;</span>
+  </div>`;
+}
+
+function render(){
+  document.getElementById('list-a').innerHTML=sideA.length
+    ? sideA.map(p=>renderChip(p,'a')).join('')
+    : `<div class="trade-empty">No players added yet</div>`;
+  document.getElementById('list-b').innerHTML=sideB.length
+    ? sideB.map(p=>renderChip(p,'b')).join('')
+    : `<div class="trade-empty">No players added yet</div>`;
+
+  const totalA=sideA.reduce((s,p)=>s+p.tradeVal,0);
+  const totalB=sideB.reduce((s,p)=>s+p.tradeVal,0);
+  document.getElementById('total-a').textContent=totalA;
+  document.getElementById('total-b').textContent=totalB;
+
+  const verdict=document.getElementById('verdict');
+  if(!sideA.length&&!sideB.length){
+    verdict.style.display='none';
+    return;
+  }
+  verdict.style.display='block';
+
+  const bigger=Math.max(totalA,totalB,1);
+  const gapPct=Math.round(Math.abs(totalA-totalB)/bigger*100);
+  let headline, detail;
+  if(gapPct<=8){
+    headline='⚖️ Fair trade';
+    detail=`Both sides are within ${gapPct}% in value — this is close to even.`;
+  } else if(totalA>totalB){
+    // Side A gives up more value (totalA) than they receive back (totalB) — Side B wins.
+    headline='📊 Side B wins this trade';
+    detail=`Side A is giving up ${gapPct}% more value than they're getting back. Side A should ask for more, or Side B should sweeten the deal.`;
+  } else {
+    // Side B gives up more value (totalB) than they receive back (totalA) — Side A wins.
+    headline='📊 Side A wins this trade';
+    detail=`Side B is giving up ${gapPct}% more value than they're getting back. Side B should ask for more, or Side A should sweeten the deal.`;
+  }
+
+  const pctA=Math.round(totalA/(totalA+totalB||1)*100);
+  verdict.innerHTML=`
+    <h3>${headline}</h3>
+    <p>${detail}</p>
+    <div class="balance-bar">
+      <div class="balance-fill-a" style="width:${pctA}%;"></div>
+      <div class="balance-fill-b" style="width:${100-pctA}%;"></div>
+    </div>
+    <p style="margin-top:8px;font-size:11px;font-family:var(--mono);color:var(--muted);">Side A ${totalA} · Side B ${totalB}</p>
+  `;
+}
+
+init().catch(e=>{
+  document.getElementById('loading').innerHTML=`<p style="color:var(--red)">Error: ${e.message}. Check connection and refresh.</p>`;
+});
+</script>
+</body>
+</html>
