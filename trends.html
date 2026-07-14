@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Year-Over-Year Trends · Fantasy 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0f11;--surface:#161a1e;--surface2:#1e2329;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#eef0f2;--muted:#7a8899;
+  --accent:#00e5a0;--accent-dim:rgba(0,229,160,0.12);
+  --red:#ff5e5e;--amber:#ffb547;--blue:#4da6ff;--purple:#7F77DD;
+  --font:'Inter',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;}
+nav{border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.nav-link{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;border:1px solid var(--border2);color:var(--muted);}
+.nav-link:hover{color:var(--text);} .nav-link.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.container{max-width:1200px;margin:0 auto;padding:24px;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:24px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.card-label{font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.card-val{font-size:20px;font-weight:600;color:var(--text);}
+.card-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.pos-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;font-family:var(--mono);}
+.pos-QB{background:rgba(77,166,255,0.15);color:#4da6ff;}
+.pos-RB{background:rgba(0,229,160,0.12);color:#00e5a0;}
+.pos-WR{background:rgba(180,143,255,0.15);color:#b48fff;}
+.pos-TE{background:rgba(255,181,71,0.15);color:#ffb547;}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:1px solid var(--border2);}
+th{padding:10px 12px;text-align:right;font-size:11px;font-weight:500;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap;cursor:pointer;user-select:none;}
+th:hover{color:var(--text);}
+th.l{text-align:left;}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--surface2);}
+td{padding:10px 12px;text-align:right;font-size:13px;white-space:nowrap;}
+td.l{text-align:left;}
+.yoy{font-family:var(--mono);font-size:12px;color:var(--muted);}
+.delta-up{color:var(--accent);font-weight:600;}
+.delta-down{color:var(--red);font-weight:600;}
+.delta-flat{color:var(--muted);}
+.trend-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;font-family:var(--mono);white-space:nowrap;}
+.trend-breakout{background:rgba(0,229,160,0.18);color:#00e5a0;}
+.trend-up{background:rgba(77,166,255,0.15);color:#4da6ff;}
+.trend-steady{background:rgba(255,255,255,0.06);color:var(--muted);}
+.trend-down{background:rgba(255,181,71,0.12);color:#ffb547;}
+.trend-falling{background:rgba(255,94,94,0.15);color:#ff5e5e;}
+.trend-new{background:rgba(180,143,255,0.15);color:#b48fff;}
+.loading{text-align:center;padding:3rem;color:var(--muted);}
+.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin:0 3px;animation:pulse 1.2s ease-in-out infinite;}
+.loading-dot:nth-child(2){animation-delay:0.2s;}.loading-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.pbtn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted);}
+.pbtn.active{background:var(--text);color:var(--bg);}
+select,input{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;padding:7px 12px;}
+.explain{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--muted);line-height:1.7;}
+.explain strong{color:var(--text);}
+@media(max-width:640px){.container{padding:16px;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" style="text-decoration:none;font-size:18px;font-weight:600;color:var(--text);">Fantasy <span style="color:var(--accent);">2026</span></a>
+  <div style="display:flex;gap:4px;">
+    <a href="index.html" class="nav-link">Rankings</a>
+    <a href="compare.html" class="nav-link">Compare</a>
+    <a href="history.html" class="nav-link">Historical</a>
+    <a href="roster.html" class="nav-link">Roster</a>
+    <a href="trade.html" class="nav-link">Trade</a>
+    <a href="trends.html" class="nav-link active">Trends</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div style="margin-bottom:20px;">
+    <h1 style="font-size:22px;font-weight:600;margin-bottom:4px;">Year-Over-Year Trends</h1>
+    <p style="font-size:13px;color:var(--muted);" id="data-label">Comparing 2024 vs 2025 full-season usage and production</p>
+  </div>
+
+  <div class="explain">
+    <strong>What this shows:</strong> pts/game, target share, and red-zone touches for 2024 vs 2025, for every player with at least 4 games played in 2025.
+    A player needs at least 4 games in <strong>both</strong> seasons to get a numeric trend — otherwise they're tagged <strong>NEW</strong> (rookie, first real season, or barely played in 2024).
+    <strong>Breakout</strong> = pts/game up 25%+ · <strong>Rising</strong> = up 10%+ · <strong>Declining</strong> = down 10%+ · <strong>Falling off</strong> = down 25%+.
+  </div>
+
+  <div id="loading" class="loading">
+    <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+    <p style="margin-top:14px;font-size:13px;">Fetching 2024 and 2025 season data from Sleeper API...</p>
+    <p style="font-size:12px;margin-top:6px;color:var(--muted);">Two full seasons — may take 15–20 seconds</p>
+  </div>
+
+  <div id="main" style="display:none;">
+    <div class="cards" id="summary-cards"></div>
+
+    <div class="filter-bar">
+      <button class="pbtn active" id="pb-ALL" onclick="setPos('ALL')">All</button>
+      <button class="pbtn" id="pb-QB" onclick="setPos('QB')">QB</button>
+      <button class="pbtn" id="pb-RB" onclick="setPos('RB')">RB</button>
+      <button class="pbtn" id="pb-WR" onclick="setPos('WR')">WR</button>
+      <button class="pbtn" id="pb-TE" onclick="setPos('TE')">TE</button>
+      <select id="min-games" onchange="renderTable()">
+        <option value="4">Min 4 games (2025)</option>
+        <option value="8">Min 8 games (2025)</option>
+        <option value="12">Min 12 games (2025)</option>
+        <option value="1">All players</option>
+      </select>
+      <select id="trend-filter" onchange="renderTable()">
+        <option value="all">All trends</option>
+        <option value="up">Rising + Breakout only</option>
+        <option value="down">Declining + Falling off only</option>
+        <option value="new">New / no 2024 sample</option>
+      </select>
+      <input type="text" id="search" placeholder="Search player..." oninput="renderTable()" style="margin-left:auto;width:160px;"/>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="status" style="font-size:12px;color:var(--muted);margin-top:12px;font-family:var(--mono);"></div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// normalizeName, halfPPR, norm, consistScore, rzFields, assignConsensus,
+// assignAdp, fetchSleeperPlayerMeta, fetchSleeperSeasonStats all come from shared.js
+let allPlayers=[], currentPos='ALL', sortCol='ppgDeltaPct', sortDir='desc';
+
+function sortIcon(col){
+  if(sortCol!==col)return'<span style="opacity:0.3;margin-left:3px;">↕</span>';
+  return sortDir==='desc'
+    ?'<span style="margin-left:3px;color:var(--accent);">↓</span>'
+    :'<span style="margin-left:3px;color:var(--accent);">↑</span>';
+}
+function sortBy(col){
+  if(sortCol===col) sortDir=sortDir==='desc'?'asc':'desc';
+  else{sortCol=col;sortDir=col==='name'||col==='pos'||col==='team'?'asc':'desc';}
+  renderTable();
+}
+
+// Aggregates one season of weekly Sleeper stats into per-player usage totals.
+function aggregateSeason(weekData, meta){
+  const agg={}, teamTgts={};
+  weekData.forEach(wk=>{
+    if(Object.keys(wk).length<20)return;
+    Object.entries(wk).forEach(([pid,s])=>{
+      if(!s)return;
+      const m=meta[pid];if(!m)return;
+      teamTgts[m.team]=(teamTgts[m.team]||0)+(s.rec_tgt||0);
+    });
+    Object.entries(wk).forEach(([pid,s])=>{
+      if(!s)return;
+      const m=meta[pid];
+      if(!m||!['QB','RB','WR','TE'].includes(m.pos))return;
+      const pts=halfPPR(s);
+      const played=pts>0.5||(s.rush_att>0)||(s.rec_tgt>0)||(s.pass_att>0);
+      if(!played)return;
+      if(!agg[pid])agg[pid]={gp:0,wpts:[],rec_tgt:0,rz_rush_att:0,rz_rec_tgt:0};
+      const a=agg[pid];
+      a.gp++;a.wpts.push(pts);
+      a.rec_tgt+=(s.rec_tgt||0);
+      const rz=rzFields(s);
+      a.rz_rush_att+=rz.rzRushAtt;a.rz_rec_tgt+=rz.rzRecTgt;
+    });
+  });
+  const out={};
+  Object.entries(agg).forEach(([pid,a])=>{
+    const m=meta[pid];
+    const tt=teamTgts[m.team]||1;
+    const tgtShare=Math.min(1,a.rec_tgt/tt);
+    const rzTouches=a.rz_rush_att+a.rz_rec_tgt;
+    const ppg=a.wpts.reduce((x,y)=>x+y,0)/a.gp;
+    out[pid]={gp:a.gp, ppg, tgtShare_raw:tgtShare, rzTouches};
+  });
+  return out;
+}
+
+function trendClass(deltaPct){
+  if(deltaPct==null) return {key:'new', label:'NEW', cls:'trend-new'};
+  if(deltaPct>=25) return {key:'up', label:'🔥 Breakout', cls:'trend-breakout'};
+  if(deltaPct>=10) return {key:'up', label:'📈 Rising', cls:'trend-up'};
+  if(deltaPct<=-25) return {key:'down', label:'⚠️ Falling off', cls:'trend-falling'};
+  if(deltaPct<=-10) return {key:'down', label:'📉 Declining', cls:'trend-down'};
+  return {key:'steady', label:'➡️ Steady', cls:'trend-steady'};
+}
+
+async function init(){
+  const meta=await fetchSleeperPlayerMeta();
+  const [weekData2024, weekData2025]=await Promise.all([
+    fetchSleeperSeasonStats(2024),
+    fetchSleeperSeasonStats(2025),
+  ]);
+
+  const y2024=aggregateSeason(weekData2024, meta);
+  const y2025=aggregateSeason(weekData2025, meta);
+
+  const players=[];
+  Object.entries(y2025).forEach(([pid,cur])=>{
+    const m=meta[pid];if(!m)return;
+    if(cur.gp<4)return; // needs a real 2025 sample to be relevant for 2026 prep
+    const prev=y2024[pid];
+    const hasPrior=!!prev&&prev.gp>=4;
+
+    const ppg25=Math.round(cur.ppg*10)/10;
+    const tgtShare25=Math.round(cur.tgtShare_raw*1000)/10;
+    const isSkill=m.pos!=='QB';
+
+    const p={
+      pid,name:m.name,pos:m.pos,team:m.team,
+      gp24:hasPrior?prev.gp:null, gp25:cur.gp,
+      ppg24:hasPrior?Math.round(prev.ppg*10)/10:null, ppg25,
+      tgtShare24:hasPrior&&isSkill?Math.round(prev.tgtShare_raw*1000)/10:null,
+      tgtShare25:isSkill?tgtShare25:null,
+      rzTouches24:hasPrior?prev.rzTouches:null, rzTouches25:cur.rzTouches,
+      hasPrior,
+      ppgDelta:hasPrior?Math.round((cur.ppg-prev.ppg)*10)/10:null,
+      ppgDeltaPct:hasPrior?Math.round((cur.ppg-prev.ppg)/Math.max(prev.ppg,1)*1000)/10:null,
+      tgtShareDelta:(hasPrior&&isSkill)?Math.round((cur.tgtShare_raw-prev.tgtShare_raw)*1000)/10:null,
+      rzTouchesDelta:hasPrior?cur.rzTouches-prev.rzTouches:null,
+      consensusRank:0, consensusDisplayRank:0, adpRank:null, adpDisplayRank:null,
+    };
+    players.push(p);
+  });
+
+  // Current (2026) consensus + ADP for context — shared.js
+  assignConsensus(players);
+  const byConsensus=[...players].filter(p=>p.consensusRank<999).sort((a,b)=>a.consensusRank-b.consensusRank);
+  byConsensus.forEach((p,i)=>{ p.consensusDisplayRank=i+1; });
+  assignAdp(players);
+
+  allPlayers=players;
+  document.getElementById('data-label').textContent=
+    `${Object.keys(y2024).length} players with 2024 data · ${Object.keys(y2025).length} players with 2025 data`;
+  document.getElementById('loading').style.display='none';
+  document.getElementById('main').style.display='block';
+  renderCards();
+  renderTable();
+}
+
+function renderCards(){
+  const withPrior=allPlayers.filter(p=>p.hasPrior);
+  const risers=withPrior.filter(p=>p.ppgDeltaPct>=10).length;
+  const fallers=withPrior.filter(p=>p.ppgDeltaPct<=-10).length;
+  const newPlayers=allPlayers.filter(p=>!p.hasPrior).length;
+  const biggestRiser=[...withPrior].sort((a,b)=>b.ppgDeltaPct-a.ppgDeltaPct)[0];
+  const biggestFaller=[...withPrior].sort((a,b)=>a.ppgDeltaPct-b.ppgDeltaPct)[0];
+  const tgtGrowth=[...withPrior].filter(p=>p.tgtShareDelta!=null).sort((a,b)=>b.tgtShareDelta-a.tgtShareDelta)[0];
+  document.getElementById('summary-cards').innerHTML=[
+    {label:'Trending up (10%+)',val:risers,sub:'pts/g vs 2024'},
+    {label:'Trending down (10%+)',val:fallers,sub:'pts/g vs 2024'},
+    {label:'New / no 2024 sample',val:newPlayers,sub:'rookies, breakouts, injury returns'},
+    {label:'Biggest riser',val:biggestRiser?biggestRiser.name:'—',sub:biggestRiser?`+${biggestRiser.ppgDeltaPct}% pts/g`:''},
+    {label:'Biggest faller',val:biggestFaller?biggestFaller.name:'—',sub:biggestFaller?`${biggestFaller.ppgDeltaPct}% pts/g`:''},
+    {label:'Target share growth',val:tgtGrowth?tgtGrowth.name:'—',sub:tgtGrowth?`+${tgtGrowth.tgtShareDelta}pp`:''},
+  ].map(c=>`<div class="card"><div class="card-label">${c.label}</div><div class="card-val" style="font-size:${typeof c.val==='number'?'22px':'16px'}">${c.val}</div><div class="card-sub">${c.sub}</div></div>`).join('');
+}
+
+function setPos(pos){
+  currentPos=pos;
+  ['ALL','QB','RB','WR','TE'].forEach(p=>document.getElementById('pb-'+p).classList.toggle('active',p===pos));
+  renderTable();
+}
+
+function deltaCell(delta, suffix){
+  if(delta==null) return '<span class="delta-flat">—</span>';
+  const cls = delta>0?'delta-up':delta<0?'delta-down':'delta-flat';
+  const sign = delta>0?'+':'';
+  return `<span class="${cls}">${sign}${delta}${suffix||''}</span>`;
+}
+
+function yoyCell(a,b,suffix){
+  if(a==null) return `<span class="yoy">— → ${b}${suffix||''}</span>`;
+  return `<span class="yoy">${a}${suffix||''} → ${b}${suffix||''}</span>`;
+}
+
+function rebuildHeader(){
+  const cols=[
+    {key:'name',label:'Player',left:true},
+    {key:'pos',label:'Pos',left:true},
+    {key:'team',label:'Team',left:true},
+    {key:'consensusDisplayRank',label:'Consensus',left:false},
+    {key:'gp25',label:'GP (24→25)',left:false},
+    {key:'ppg25',label:'Pts/G (24→25)',left:false},
+    {key:'ppgDeltaPct',label:'Δ Pts/G %',left:false},
+    {key:'tgtShare25',label:'Tgt Share (24→25)',left:false},
+    {key:'tgtShareDelta',label:'Δ Tgt Share',left:false},
+    {key:'rzTouchesDelta',label:'Δ RZ Touches',left:false},
+    {key:'trend',label:'Trend',left:false},
+  ];
+  document.getElementById('thead').innerHTML=`<tr>${cols.map(c=>`
+    <th ${c.left?'class="l"':''} onclick="sortBy('${c.key}')">${c.label}${sortIcon(c.key)}</th>`).join('')}</tr>`;
+}
+
+function renderTable(){
+  rebuildHeader();
+  const minG=parseInt(document.getElementById('min-games').value);
+  const tf=document.getElementById('trend-filter').value;
+  const search=document.getElementById('search').value.toLowerCase();
+
+  let data=allPlayers.filter(p=>{
+    if(currentPos!=='ALL'&&p.pos!==currentPos)return false;
+    if(p.gp25<minG)return false;
+    if(search&&!p.name.toLowerCase().includes(search)&&!p.team.toLowerCase().includes(search))return false;
+    const t=trendClass(p.ppgDeltaPct);
+    if(tf==='up'&&t.key!=='up')return false;
+    if(tf==='down'&&t.key!=='down')return false;
+    if(tf==='new'&&t.key!=='new')return false;
+    return true;
+  });
+
+  data=[...data].sort((a,b)=>{
+    const av=a[sortCol]??-Infinity, bv=b[sortCol]??-Infinity;
+    if(typeof av==='string') return sortDir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+    return sortDir==='asc'?av-bv:bv-av;
+  });
+
+  document.getElementById('status').textContent=`${data.length} players`;
+
+  document.getElementById('tbody').innerHTML=data.map(p=>{
+    const t=trendClass(p.ppgDeltaPct);
+    return `<tr>
+      <td class="l" style="font-weight:500;">${p.name}</td>
+      <td class="l"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
+      <td class="l" style="font-size:12px;color:var(--muted);font-family:var(--mono);">${p.team}</td>
+      <td style="font-family:var(--mono);color:var(--muted);">${p.consensusRank<999?'#'+p.consensusDisplayRank:'—'}</td>
+      <td>${yoyCell(p.gp24,p.gp25)}</td>
+      <td>${yoyCell(p.ppg24,p.ppg25)}</td>
+      <td>${deltaCell(p.ppgDeltaPct,'%')}</td>
+      <td>${p.tgtShare25!=null?yoyCell(p.tgtShare24,p.tgtShare25,'%'):'<span class="yoy">—</span>'}</td>
+      <td>${deltaCell(p.tgtShareDelta,'pp')}</td>
+      <td>${deltaCell(p.rzTouchesDelta)}</td>
+      <td><span class="trend-badge ${t.cls}">${t.label}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+init().catch(e=>{
+  document.getElementById('loading').innerHTML=`<p style="color:var(--red)">Error: ${e.message}. Check connection and refresh.</p>`;
+});
+</script>
+</body>
+</html>
