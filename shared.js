@@ -646,17 +646,18 @@ function consistScore(wpts) {
   return Math.max(0, 1 - (sd/mean)*0.6);
 }
 
-// Sleeper's weekly stats objects don't have a documented/confirmed field name for
-// red-zone stats — different candidate names are tried here so the guess only has
-// to be made (and fixed, once confirmed) in one place instead of four.
+// Sleeper's weekly stats objects use the pattern {stat}_rz_{qualifier} for
+// red-zone fields. rush_rz_att and rec_rz_tgt were confirmed directly against
+// a live response (2026-07); pass_rz_att/pass_rz_td/rush_rz_td follow the same
+// naming convention but haven't been directly observed on a QB object yet.
 function rzFields(s) {
   if (!s) return {rzRushAtt:0, rzRecTgt:0, rzPassAtt:0, rzPassTd:0, rzRushTd:0};
   return {
-    rzRushAtt: s.rush_rz_att || s.rz_rush_att || 0,
-    rzRecTgt:  s.rec_rz_tgt  || s.rz_rec_tgt  || 0,
-    rzPassAtt: s.pass_rz_att || s.pass_rz     || 0,
+    rzRushAtt: s.rush_rz_att || 0,
+    rzRecTgt:  s.rec_rz_tgt  || 0,
+    rzPassAtt: s.pass_rz_att || 0,
     rzPassTd:  s.pass_rz_td  || 0,
-    rzRushTd:  s.rush_rz_td  || s.rush_td_rz  || 0,
+    rzRushTd:  s.rush_rz_td  || 0,
   };
 }
 
