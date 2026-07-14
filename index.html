@@ -167,7 +167,8 @@
     <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:83%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">25%</span><span class="model-desc"><strong>Pts/game</strong> — half PPR efficiency baseline</span></div>
     <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:33%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">10%</span><span class="model-desc"><strong>RZ touches</strong> — secondary signal; raw touches matter less for receivers</span></div>
     <div class="model-row"><div class="model-bar-wrap"><div class="model-bar" style="width:33%;background:#7F77DD"></div></div><span class="model-pct" style="color:#7F77DD">10%</span><span class="model-desc"><strong>Consistency</strong> — ceiling focus; boom weeks prioritized over floor</span></div>
-    <p style="margin-top:14px;font-size:12px;color:var(--muted);">Edge % = (consensus rank − model rank) ÷ total players × 100. Positive = model rates player higher than consensus. Larger % = bigger value opportunity.</p>
+    <p style="margin-top:14px;font-size:12px;color:var(--muted);">After the weighted signals above, Score is adjusted down for players with a tracked recent injury history — up to 30% off for the highest-risk cases, near-zero for healthy players, no adjustment for anyone not in the tracked list. Model Rank and Edge % are both based on this injury-adjusted Score.</p>
+    <p style="margin-top:8px;font-size:12px;color:var(--muted);">Edge % = (consensus rank − model rank) ÷ total players × 100. Positive = model rates player higher than consensus. Larger % = bigger value opportunity.</p>
   </div>
 
   <div class="csv-note" id="csv-note">
@@ -457,38 +458,13 @@ function adpGapBadge(gap) {
 }
 
 // ── Injury risk ───────────────────────────────────────────────────────────────
-const INJURY_GP = {
-  'christian mccaffrey':[16,8,8],'tua tagovailoa':[13,12,12],
-  'travis etienne':[17,10,14],'kyren williams':[12,14,15],
-  'tj hockenson':[10,4,9],'davante adams':[17,16,14],
-  'rashee rice':[8,4,14],'george kittle':[13,16,14],
-  'mark andrews':[12,5,13],'cooper kupp':[7,6,12],
-  'mike evans':[17,17,16],'stefon diggs':[17,5,0],
-  'tyreek hill':[17,17,12],'deebo samuel':[12,10,11],
-  'dk metcalf':[17,15,16],'jordan love':[16,11,14],
-  'jalen hurts':[15,15,15],'brock purdy':[16,17,15],
-  'dak prescott':[17,11,16],'saquon barkley':[16,14,17],
-  'breece hall':[10,14,15],'javonte williams':[8,17,14],
-  'michael pittman':[17,16,13],'zach charbonnet':[16,13,13],
-  'rhamondre stevenson':[13,13,13],'dallas goedert':[12,12,14],
-  'austin ekeler':[10,16,14],
-};
-
-function injuryScore(name) {
-  const key=normalizeName(name);
-  const d=INJURY_GP[key];
-  if(!d) return {pct:75,label:'—',color:'var(--muted)'};
-  // Weighted: 2025=50%, 2024=30%, 2023=20%
-  const w=Math.round(((d[2]||0)*0.50+(d[1]||0)*0.30+(d[0]||0)*0.20)/17*100);
-  const label=w>=80?'Healthy':w>=60?'Moderate':'Risky';
-  const color=w>=80?'var(--accent)':w>=60?'var(--amber)':'var(--red)';
-  return {pct:w, label, color, gp:d};
-}
-
+// INJURY_GP and injuryScore() come from shared.js — the injury multiplier is
+// already folded into Score there (via applyInjuryModifier), so this badge is
+// now a visible explanation of part of the Score, not just cosmetic.
 function injuryBadge(name) {
   const {pct,label,color}=injuryScore(name);
   if(label==='—') return '';
-  return `<span title="Availability: ${pct}% weighted (2023-25)" style="color:${color};font-size:10px;font-weight:500;padding:1px 5px;border-radius:3px;margin-left:4px;background:${color}22;cursor:help;vertical-align:middle;font-family:var(--mono);">${pct}%</span>`;
+  return `<span title="Availability: ${pct}% weighted (2023-25) — factored into Score" style="color:${color};font-size:10px;font-weight:500;padding:1px 5px;border-radius:3px;margin-left:4px;background:${color}22;cursor:help;vertical-align:middle;font-family:var(--mono);">${pct}%</span>`;
 }
 
 function edgeBadge(edge) {

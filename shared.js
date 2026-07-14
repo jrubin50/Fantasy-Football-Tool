@@ -716,11 +716,60 @@ function scoreWRTE(players) {
 
 // Scores every position group in `players` in place, then assigns modelRank
 // (1 = best) within each position group.
+// ─── Injury risk ─────────────────────────────────────────────────────────────
+// Games played over the last three seasons for players with a known recent
+// injury history. Weighted availability: 2025=50%, 2024=30%, 2023=20%.
+const INJURY_GP = {
+  'christian mccaffrey':[16,8,8],'tua tagovailoa':[13,12,12],
+  'travis etienne':[17,10,14],'kyren williams':[12,14,15],
+  'tj hockenson':[10,4,9],'davante adams':[17,16,14],
+  'rashee rice':[8,4,14],'george kittle':[13,16,14],
+  'mark andrews':[12,5,13],'cooper kupp':[7,6,12],
+  'mike evans':[17,17,16],'stefon diggs':[17,5,0],
+  'tyreek hill':[17,17,12],'deebo samuel':[12,10,11],
+  'dk metcalf':[17,15,16],'jordan love':[16,11,14],
+  'jalen hurts':[15,15,15],'brock purdy':[16,17,15],
+  'dak prescott':[17,11,16],'saquon barkley':[16,14,17],
+  'breece hall':[10,14,15],'javonte williams':[8,17,14],
+  'michael pittman':[17,16,13],'zach charbonnet':[16,13,13],
+  'rhamondre stevenson':[13,13,13],'dallas goedert':[12,12,14],
+  'austin ekeler':[10,16,14],
+};
+
+// Returns null pct for anyone not in INJURY_GP — callers must not assume a
+// player is at risk just because they're untracked.
+function injuryScore(name) {
+  const key=normalizeName(name);
+  const d=INJURY_GP[key];
+  if(!d) return {pct:null,label:'—',color:'var(--muted)',gp:null};
+  const w=Math.round(((d[2]||0)*0.50+(d[1]||0)*0.30+(d[0]||0)*0.20)/17*100);
+  const label=w>=80?'Healthy':w>=60?'Moderate':'Risky';
+  const color=w>=80?'var(--accent)':w>=60?'var(--amber)':'var(--red)';
+  return {pct:w, label, color, gp:d};
+}
+
+// Converts weighted availability % into a score multiplier. Capped so even a
+// worst-case-tracked player (0% availability) only loses 30% of their score —
+// this is a risk adjustment, not a disqualification. Untracked players (pct
+// null) get a multiplier of 1 — no assumed risk without data.
+function injuryMultiplier(pct) {
+  if (pct==null) return 1;
+  return 0.7 + 0.3*(pct/100);
+}
+
+function applyInjuryModifier(players) {
+  players.forEach(p => {
+    const {pct} = injuryScore(p.name);
+    p.score = Math.round(p.score * injuryMultiplier(pct));
+  });
+}
+
 function scoreAllPositions(players) {
   scoreQB(players.filter(p=>p.pos==='QB'));
   scoreRB(players.filter(p=>p.pos==='RB'));
   scoreWRTE(players.filter(p=>p.pos==='WR'));
   scoreWRTE(players.filter(p=>p.pos==='TE'));
+  applyInjuryModifier(players);
   ['QB','RB','WR','TE'].forEach(pos => {
     const g = [...players.filter(p=>p.pos===pos)].sort((a,b)=>b.score-a.score);
     g.forEach((p,i)=>{ p.modelRank = i+1; });
