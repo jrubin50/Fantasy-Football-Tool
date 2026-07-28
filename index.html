@@ -480,10 +480,10 @@ function updateCards() {
   const badge=document.getElementById('consensus-badge');
   if (badge) badge.textContent='FantasyPros ECR 6/24/2026';
   const top=allPlayers[0];
-  // Edge cards: same filters as edge tab (top 200 consensus, min 8 ppg, skill pos)
+  // Edge cards: same filters as edge tab (top 100 consensus, min 8 ppg, skill pos)
   const edgeCandidates=allPlayers.filter(p=>{
     const cu=p.consensusRank<300?p.consensusRank:p.adpRank;
-    return cu<=250 && p.ppg>=8 && p.edge>0;
+    return cu<=100 && p.ppg>=8 && p.edge>0;
   });
   const topEdge=[...edgeCandidates].sort((a,b)=>b.edge-a.edge)[0];
   const bigEdge=edgeCandidates.filter(p=>p.edge>=4).length;
@@ -563,11 +563,11 @@ function renderTable() {
     if (edgeF==='huge'&&p.edge<4) return false;
     if (edgeF==='good'&&p.edge<2) return false;
     if (edgeF==='pos' &&p.edge<1) return false;
-    // Edge tab: fix 2 (top 200 consensus only) + fix 4 (min 8 pts/game)
+    // Edge tab: must be a rostered-relevant player (top 100 consensus) with a real role (min 8 pts/game)
     if (currentTab==='edge') {
       const cUsed=p.consensusRank<300?p.consensusRank:p.adpRank;
-      if (cUsed>250) return false;       // fix 2: must be ranked inside top 250
-      if (p.ppg<8)   return false;       // fix 4: minimum 8 pts/game
+      if (cUsed>100) return false;       // must be ranked inside top 100
+      if (p.ppg<8)   return false;       // minimum 8 pts/game
     }
     return true;
   });
