@@ -64,6 +64,9 @@
   td { padding: 10px 10px; text-align: right; white-space: nowrap; }
   td.left { text-align: left; }
   .player-name { font-weight: 500; color: var(--text); max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+  .star-btn { cursor: pointer; font-size: 15px; margin-right: 5px; user-select: none; vertical-align: middle; color: var(--border2); }
+  .star-btn:hover { color: var(--amber); }
+  .star-btn.starred { color: var(--amber); }
   .rank-num { font-family: var(--mono); font-size: 12px; color: var(--muted); }
   .pos-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; font-family: var(--mono); }
   .pos-QB { background: rgba(77,166,255,0.15); color: #4da6ff; }
@@ -123,9 +126,10 @@
 <div class="container">
 
   <div class="tabs">
-    <button class="tab active" id="tab-overall" onclick="switchTab('overall')">Overall</button>
-    <button class="tab"        id="tab-edge"    onclick="switchTab('edge')">🔥 Edge Plays</button>
-    <button class="tab"        id="tab-model"   onclick="switchTab('model')">Model</button>
+    <button class="tab active" id="tab-overall"   onclick="switchTab('overall')">Overall</button>
+    <button class="tab"        id="tab-edge"      onclick="switchTab('edge')">🔥 Edge Plays</button>
+    <button class="tab"        id="tab-model"     onclick="switchTab('model')">Model</button>
+    <button class="tab"        id="tab-watchlist" onclick="switchTab('watchlist')">⭐ Watchlist (0)</button>
   </div>
 
   <!-- Edge plays explainer -->
@@ -235,6 +239,12 @@ let playerMeta = {};
 let csvLoaded = false;
 let sortCol = null;   // current sort column key
 let sortDir = 'desc'; // 'asc' or 'desc'
+
+// ── Watchlist (starred players) ──
+// Persisted in this browser's localStorage only — it does not sync across
+// devices or browsers, and clearing site data will clear it.
+const WATCHLIST_KEY = 'ff2026_watchlist';
+let starredIds = new Set(JSON.parse(localStorage.getItem(WATCHLIST_KEY) || '[]'));
 
 // ─── CSV import ──────────────────────────────────────────────────────────────
 // normalizeName, halfPPR, norm, consistScore, and consensusRanks (built from
@@ -400,6 +410,7 @@ async function loadData() {
     document.getElementById('loading').style.display='none';
     document.getElementById('main-table').style.display='table';
     document.getElementById('edge-filter').style.display='block';
+    updateWatchlistTabLabel();
     updateCards(); renderTable();
   } catch(e) {
     console.error(e);
@@ -439,6 +450,11 @@ function contextWarn(name) {
   return `<span title="${ctx.msg}" style="background:${s.bg};color:${s.color};font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;cursor:help;vertical-align:middle;">${s.icon}</span>`;
 }
 
+function adpCell(adpDisplayRank) {
+  if (!adpDisplayRank) return '<span style="color:var(--muted);font-size:12px;">—</span>';
+  return `<span style="font-family:var(--mono);font-size:12px;color:var(--muted);">${adpDisplayRank}</span>`;
+}
+
 function adpGapBadge(gap) {
   if (!gap && gap!==0) return '<span style="color:var(--muted);font-size:12px;">—</span>';
   if (gap >= 10) return `<span style="background:rgba(0,229,160,0.12);color:var(--accent);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;font-family:var(--mono);">+${gap}</span>`;
@@ -455,6 +471,24 @@ function injuryBadge(name) {
   const {pct,label,color}=injuryScore(name);
   if(label==='—') return '';
   return `<span title="Availability: ${pct}% weighted (2023-25) — factored into Score" style="color:${color};font-size:10px;font-weight:500;padding:1px 5px;border-radius:3px;margin-left:4px;background:${color}22;cursor:help;vertical-align:middle;font-family:var(--mono);">${pct}%</span>`;
+}
+
+function starBtn(id) {
+  const on = starredIds.has(id);
+  return `<span class="star-btn ${on?'starred':''}" onclick="toggleStar('${id}')" title="${on?'Remove from watchlist':'Add to watchlist'}">${on?'★':'☆'}</span>`;
+}
+
+function toggleStar(id) {
+  if (starredIds.has(id)) starredIds.delete(id);
+  else starredIds.add(id);
+  localStorage.setItem(WATCHLIST_KEY, JSON.stringify([...starredIds]));
+  updateWatchlistTabLabel();
+  renderTable();
+}
+
+function updateWatchlistTabLabel() {
+  const btn = document.getElementById('tab-watchlist');
+  if (btn) btn.textContent = `⭐ Watchlist (${starredIds.size})`;
 }
 
 function edgeBadge(edge) {
@@ -491,7 +525,7 @@ function updateCards() {
 function switchTab(tab) {
   currentTab=tab;
   sortCol=null; sortDir='desc'; // reset sort on tab change
-  ['edge','overall','model'].forEach(t=>{
+  ['edge','overall','model','watchlist'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
   });
   document.getElementById('info-edge').style.display  = tab==='edge'  ?'block':'none';
@@ -559,6 +593,7 @@ function renderTable() {
       if (cUsed>100) return false;       // must be ranked inside top 100
       if (p.ppg<8)   return false;       // minimum 8 pts/game
     }
+    if (currentTab==='watchlist' && !starredIds.has(p.id)) return false;
     return true;
   });
 
@@ -595,7 +630,10 @@ function renderTable() {
   }
 
   if (!data.length) {
-    tbody.innerHTML=`<tr><td colspan="17" style="text-align:center;padding:40px;color:var(--muted);">No players match filters</td></tr>`;
+    const emptyMsg = currentTab==='watchlist'
+      ? 'No players starred yet — click the ☆ next to any player to add them to your watchlist'
+      : 'No players match filters';
+    tbody.innerHTML=`<tr><td colspan="17" style="text-align:center;padding:40px;color:var(--muted);">${emptyMsg}</td></tr>`;
     return;
   }
 
@@ -610,7 +648,7 @@ function renderTable() {
     if (currentTab==='edge') {
       return `<tr>
         <td class="left"><span class="rank-num">${i+1}</span></td>
-        <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+        <td class="left">${starBtn(p.id)}<span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
         <td class="left"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
         <td class="left"><span class="team-tag">${p.team}</span></td>
         <td>${p.gp}</td><td>${p.ppg}</td>
@@ -625,11 +663,32 @@ function renderTable() {
       </tr>`;
     }
 
+    // ── Model tab row (same generic columns regardless of position filter) ──
+    if (currentTab==='model') {
+      return `<tr>
+        <td class="left"><span class="rank-num">${cRk}</span></td>
+        <td class="left">${starBtn(p.id)}<span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+        <td class="left"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
+        <td class="left"><span class="team-tag">${p.team}</span></td>
+        <td><span class="consensus-rank">${cConsensus}</span></td>
+        <td>${adpCell(p.adpDisplayRank)}</td>
+        <td style="font-family:var(--mono);font-size:13px;color:var(--muted);">${p.adpAvg||'—'}</td>
+        <td>${adpGapBadge(p.adpGap)}</td>
+        <td>${p.gp}</td><td>${p.ppg}</td>
+        <td class="${valClass(p.totalTD,12,7)}">${p.totalTD}</td>
+        <td class="${p.totalTO>=8?'val-neg':p.totalTO>=5?'val-mid':'val-low'}">${p.totalTO}</td>
+        <td class="${valClass(consistPct,70,45)}">${consistPct}%</td>
+        <td>${eb}</td>
+        <td><span class="tier-tag ${tc}">${TIER_LABELS[p.tier]}</span></td>
+        <td><span class="score-val">${p.score}</span></td>
+      </tr>`;
+    }
+
     // ── QB position filter row ──
     if (isQBOnly) {
       return `<tr>
         <td class="left"><span class="rank-num">${cRk}</span></td>
-        <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+        <td class="left">${starBtn(p.id)}<span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
         <td class="left"><span class="pos-tag pos-QB">QB</span></td>
         <td class="left"><span class="team-tag">${p.team}</span></td>
         <td><span class="consensus-rank">${cConsensus}</span></td>
@@ -654,7 +713,7 @@ function renderTable() {
     if (isSkill) {
       return `<tr>
         <td class="left"><span class="rank-num">${cRk}</span></td>
-        <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+        <td class="left">${starBtn(p.id)}<span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
         <td class="left"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
         <td class="left"><span class="team-tag">${p.team}</span></td>
         <td><span class="consensus-rank">${cConsensus}</span></td>
@@ -675,7 +734,7 @@ function renderTable() {
     // ── ALL positions — overall consensus board ──
     return `<tr>
       <td class="left"><span class="rank-num">${cRk}</span></td>
-      <td class="left"><span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
+      <td class="left">${starBtn(p.id)}<span class="player-name">${p.name}</span>${contextWarn(p.name)}${injuryBadge(p.name)}</td>
       <td class="left"><span class="pos-tag pos-${p.pos}">${p.pos}</span></td>
       <td class="left"><span class="team-tag">${p.team}</span></td>
       <td><span class="consensus-rank">${cConsensus}</span></td>
@@ -691,6 +750,7 @@ function renderTable() {
   }).join('');
 }
 
+updateWatchlistTabLabel();
 loadData();
 </script>
 </body>
