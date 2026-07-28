@@ -123,13 +123,13 @@
 <div class="container">
 
   <div class="tabs">
-    <button class="tab"        id="tab-overall" onclick="switchTab('overall')">Overall</button>
-    <button class="tab active" id="tab-edge"    onclick="switchTab('edge')">🔥 Edge Plays</button>
+    <button class="tab active" id="tab-overall" onclick="switchTab('overall')">Overall</button>
+    <button class="tab"        id="tab-edge"    onclick="switchTab('edge')">🔥 Edge Plays</button>
     <button class="tab"        id="tab-model"   onclick="switchTab('model')">Model</button>
   </div>
 
   <!-- Edge plays explainer -->
-  <div class="info-card" id="info-edge" style="display:block;">
+  <div class="info-card" id="info-edge">
     <h3>Edge plays — analytics vs. consensus</h3>
     <p>Players ranked significantly higher by our model than by expert consensus (from FantasyPros ECR rankings (6/24/2026)). A big positive edge % means consensus is sleeping on them — 2025 production data suggests they're undervalued. You can also override with your own CSV via the Import button.</p>
     <div style="display:flex; gap:20px; flex-wrap:wrap; font-size:13px;">
@@ -230,7 +230,7 @@
 const TIER_LABELS = ['Elite','Tier 1','Tier 2','Tier 3','Tier 4','Sleeper'];
 let allPlayers = [];
 let currentPos = 'ALL';
-let currentTab = 'edge';
+let currentTab = 'overall';
 let playerMeta = {};
 let csvLoaded = false;
 let sortCol = null;   // current sort column key
