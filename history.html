@@ -88,7 +88,7 @@ select,input{background:var(--surface);border:1px solid var(--border2);border-ra
   <div class="explain">
     <strong>How confidence is calculated:</strong> We run our model on <strong>2025 full-season stats</strong> and compare each player's model rank against their 2026 expert consensus rank. A positive edge means our analytics rank them higher than consensus — the market is undervaluing them.
     <br><br>
-    <strong>Confidence score</strong> factors in: size of the edge gap, their 2025 pts/game floor (min 8), consistency of weekly scoring, and whether they appear in the top 250 consensus. Players with large edges + high confidence are the ones worth targeting early relative to their ADP.
+    <strong>Confidence score</strong> factors in: size of the edge gap, their 2025 pts/game floor (min 8), consistency of weekly scoring, and whether they appear in the top 100 consensus. Players with large edges + high confidence are the ones worth targeting early relative to their ADP.
   </div>
 
   <div id="loading" class="loading">
@@ -136,7 +136,7 @@ select,input{background:var(--surface);border:1px solid var(--border2);border-ra
       </table>
     </div>
     <p style="font-size:12px;color:var(--muted);margin-top:12px;font-family:var(--mono);">
-      Click any column header to sort · Showing players with positive edge vs 2026 consensus · Min 8 games, 8+ pts/game, top 250 consensus
+      Click any column header to sort · Showing players with positive edge vs 2026 consensus · Min 8 games, 8+ pts/game, top 100 consensus
     </p>
   </div>
 </div>
@@ -232,8 +232,8 @@ async function init(){
   players.forEach(p=>{
     if(p.consensusRank>=999) return; // must be in the consensus board at all
 
-    // Only include positive edge plays with enough pts/game, ranked in the top 250
-    if(p.edge<=0||p.ppg<8||p.consensusRank>250)return;
+    // Only include positive edge plays with enough pts/game, ranked in the top 100
+    if(p.edge<=0||p.ppg<8||p.consensusRank>100)return;
 
     // Confidence: combo of edge size, pts/game floor, and consistency. Scale 0-100
     const edgeScore=Math.min(100,p.edge*8);
