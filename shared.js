@@ -802,12 +802,29 @@ function assignAdp(players) {
 // players outside the top 250 consensus (50% weight 151-250, 0% beyond 250).
 // Requires p.consensusRank and p.modelRank to already be set.
 function computeEdge(players) {
-  const total = players.length;
-  players.forEach(p => {
-    const consensusUsed = p.consensusRank < 999 ? p.consensusRank : 200;
-    const rawEdge = consensusUsed - p.modelRank;
-    const dampen = consensusUsed<=150 ? 1 : consensusUsed<=250 ? 0.5 : 0;
-    p.edge = Math.round(rawEdge/total*100*dampen);
+  // modelRank is already position-relative (1 = best QB, 1 = best TE, ...), so
+  // it has to be compared against a position-relative consensus rank too — not
+  // the overall 1-300 board. QB/TE pools are much smaller than RB/WR, so a
+  // modelRank like "5th-best TE" is trivial to reach in a ~40-player pool;
+  // subtracting that from an overall-board consensus rank (which mixes in
+  // hundreds of RBs/WRs) manufactured a huge fake edge% for those two
+  // positions specifically, even when the model barely disagreed with
+  // consensus within the position itself.
+  ['QB','RB','WR','TE'].forEach(pos => {
+    const group = players.filter(p=>p.pos===pos);
+    const total = group.length;
+    const ranked = [...group.filter(p=>p.consensusRank<999)].sort((a,b)=>a.consensusRank-b.consensusRank);
+    ranked.forEach((p,i) => { p.consensusPosRank = i+1; });
+    group.filter(p=>p.consensusRank>=999).forEach(p => { p.consensusPosRank = null; });
+
+    group.forEach(p => {
+      const consensusUsed = p.consensusPosRank != null ? p.consensusPosRank : total;
+      const rawEdge = consensusUsed - p.modelRank;
+      // Dampen is still based on overall board placement — a TE ranked #260
+      // overall is a deep/irrelevant player regardless of his TE-only rank.
+      const dampen = p.consensusRank<=150 ? 1 : p.consensusRank<=250 ? 0.5 : 0;
+      p.edge = Math.round(rawEdge/total*100*dampen);
+    });
   });
 }
 
