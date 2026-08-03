@@ -1,6 +1,6 @@
 // ─── Fantasy Football Analytics Platform — shared utilities ──────────────────
 // Single source of truth for name matching, scoring, and baked-in consensus/ADP
-// data, used by index.html, compare.html, history.html, and roster.html.
+// data, used by index.html, compare.html, roster.html, and trade.html.
 
 // ─── Baked-in consensus data ──────────────────────────────────────────────────
 // CONSENSUS_DATA: FantasyPros ECR 6/24/2026 · top 300 skill positions · unique ranks
