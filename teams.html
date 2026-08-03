@@ -58,9 +58,9 @@ input{background:var(--surface);border:1px solid var(--border2);border-radius:8p
 .oc-name{font-size:12px;color:var(--text);font-family:var(--font);margin-bottom:3px;}
 .oc-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;font-family:var(--mono);white-space:nowrap;cursor:help;}
 .oc-up{background:rgba(0,229,160,0.15);color:var(--accent);}
-.oc-mod{background:rgba(77,166,255,0.12);color:var(--blue);}
 .oc-mixed{background:rgba(255,181,71,0.12);color:var(--amber);}
 .oc-risk{background:rgba(255,94,94,0.15);color:var(--red);}
+.oc-none-tag{background:rgba(255,255,255,0.06);color:var(--muted);}
 .oc-none{color:var(--muted);font-size:12px;font-family:var(--font);}
 .checkbox-label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none;}
 .checkbox-label input{width:14px;height:14px;padding:0;cursor:pointer;}
@@ -93,7 +93,7 @@ input{background:var(--surface);border:1px solid var(--border2);border-radius:8p
     <br><br>
     <strong>Plays/game (pace)</strong> is offensive snap volume — how many real offensive plays (pass + rush, excluding kneels/spikes) a team runs per game. This isn't inherently good or bad like EPA, but it matters for fantasy: a fast-paced offense creates more total opportunities (targets, carries) even if it isn't hyper-efficient, which raises the floor for its skill players. Sourced from nflverse play-by-play data — not from the live Sleeper API this tool otherwise uses, since Sleeper doesn't expose play-by-play or EPA. This is a snapshot; ask to have it refreshed periodically as the season progresses.
     <br><br>
-    <strong>New OC</strong> flags teams with a new offensive coordinator this offseason where the OC is the one actually calling plays — excludes teams whose head coach calls the offensive plays themselves, since the OC hire isn't the signal there. The direction badge is derived directly from CBS Sports' own letter grade for the hire, not our own judgment call — A-range grades read as likely improvement, B as modest positive, C as mixed/uncertain, D as risk. Hover a badge for who they are, where they came from, and why. Manually sourced and entered, not auto-updated.
+    <strong>Coaching Change</strong> flags every team with a new head coach and/or offensive coordinator this offseason, with a fantasy-specific 🟢 Benefit / 🔴 Concern / ⚪ Mixed read for each — sourced from Draft Sharks' own coaching-changes breakdown, not our own invented scoring. Hover a badge for the reasoning and which specific players it names. Manually sourced and entered, not auto-updated.
   </div>
 
   <div class="cards" id="summary-cards"></div>
@@ -101,7 +101,7 @@ input{background:var(--surface);border:1px solid var(--border2);border-radius:8p
   <div class="filter-bar">
     <input type="text" id="search" placeholder="Search team..." oninput="renderTable()" style="width:200px;"/>
     <label class="checkbox-label">
-      <input type="checkbox" id="oc-only" onchange="renderTable()"/> New OC only
+      <input type="checkbox" id="oc-only" onchange="renderTable()"/> Coaching change only
     </label>
   </div>
 
@@ -163,51 +163,52 @@ const TEAM_ANALYTICS = {
   "WAS": {"offEpaPlay":0.005,"passEpaPlay":-0.008,"rushEpaPlay":0.019,"playsPerGame":57.5,"games":17}
 };
 
-// New offensive coordinator hires this offseason — manually sourced from a
-// CBS Sports coaching-grades article (user-provided), not auto-updated.
-// Grade is CBS's own letter grade for the hire.
-// Excludes Bears (Press Taylor), Cardinals (Nathaniel Hackett), 49ers (Brian
-// Fleury), Rams (Nathan Scheelhaase), and Bills (Pete Carmichael Jr.) — those
-// teams have offensive-minded head coaches who call plays themselves, so the
-// new OC hire isn't a meaningful signal for expected offensive change there.
-const OC_CHANGES = {
-  ATL: {name:'Tommy Rees',        from:'Browns OC (came with new HC Kevin Stefanski)', grade:'C', note:"Browns' offense was 3rd-worst in yards, 2nd-worst in scoring under him in Cleveland."},
-  BAL: {name:'Declan Doyle',      from:"Bears OC ('25), ex-Broncos TE coach", grade:'B', note:'First time calling plays himself.'},
-  CLE: {name:'Travis Switzer',    from:'Ravens run game coordinator (first-time OC)', grade:'C', note:'New HC Todd Monken likely oversees the passing game.'},
-  DEN: {name:'Davis Webb',        from:'Promoted from passing game coordinator', grade:'A-', note:'Could take over play-calling from Sean Payton; strong Bo Nix rapport.'},
-  DET: {name:'Drew Petzing',      from:"Cardinals OC ('23), ex-Browns/Vikings", grade:'C+', note:'Under-the-radar hire; run-friendly track record.'},
-  KC:  {name:'Eric Bieniemy',     from:'Returning (ex-Chiefs assistant)', grade:'B-', note:'Mahomes familiarity, but real personnel questions (Kelce turning 37).'},
-  LAC: {name:'Mike McDaniel',     from:'Ex-Dolphins HC', grade:'A+', note:'Big swing — explosive run-scheme history (Mostert, Achane).'},
-  LV:  {name:'Andrew Janocko',    from:'Seahawks QB coach (Super Bowl winner)', grade:'B', note:'New HC Klint Kubiak familiarity.'},
-  MIA: {name:'Bobby Slowik',      from:'Dolphins senior passing game coordinator; ex-Texans OC', grade:'A-', note:'Internal promotion under new HC Jeff Hafley; had early success with C.J. Stroud in Houston.'},
-  NYG: {name:'Matt Nagy',         from:'Chiefs senior assistant (no play-calling)', grade:'C-', note:'New HC John Harbaugh; mixed track record as a former HC.'},
-  NYJ: {name:'Frank Reich',       from:'A year away from coaching', grade:'C', note:'New HC Aaron Glenn; described as a "gamble."'},
-  PHI: {name:'Sean Mannion',      from:'Packers QB coach', grade:'B', note:"Helped Jordan Love's best season."},
-  PIT: {name:'Brian Angelichio',  from:'Vikings TE coach', grade:'B', note:'New HC Mike McCarthy likely calls plays himself.'},
-  TB:  {name:'Zac Robinson',      from:'Falcons OC', grade:'B+', note:'Developed Bijan Robinson, Drake London, and Kyle Pitts well.'},
-  TEN: {name:'Brian Daboll',      from:'Ex-Giants HC; ex-Bills OC', grade:'B+', note:'Strong young-QB developer track record (Josh Allen), now with Cam Ward.'},
-  WAS: {name:'David Blough',      from:'Internal, first-time play-caller (age 30)', grade:'C-', note:'Replaces Kingsbury after a 12-5 → 5-12 step back.'},
+// Coaching changes this offseason — manually sourced from Draft Sharks,
+// "NFL Coaching Changes 2026: Who's Set to Benefit, and Who Might be in
+// Trouble?" by Kevin English (user-provided), not auto-updated. Tier and
+// framing are the source's own fantasy-specific read, not an invented score.
+const COACHING_CHANGES = {
+  ARI: {hc:'Mike LaFleur',   oc:'Nathaniel Hackett', tier:'benefit', note:"LaFleur's proven, flexible McVay-style scheme should boost offensive efficiency."},
+  ATL: {hc:'Kevin Stefanski', oc:'Tommy Rees',        tier:'benefit', note:'Zone-heavy run scheme fits Bijan Robinson well — expect 20+ weekly touches.'},
+  BAL: {hc:'Jesse Minter',   oc:'Declan Doyle',       tier:'benefit', note:'Payton/Johnson pedigree should unlock more explosive plays — good for Lamar Jackson and Derrick Henry.'},
+  BUF: {hc:'Joe Brady',      oc:'Pete Carmichael Jr.', tier:'benefit', note:'Brady keeps play-calling (continuity) — great for Josh Allen and James Cook; D.J. Moore gets a better setup.'},
+  CHI: {hc:null,             oc:'Press Taylor',       tier:'none',    note:'Ben Johnson still calls plays — no real change expected.'},
+  CLE: {hc:'Todd Monken',    oc:'Travis Switzer',     tier:'mixed',   note:'Run-heavy approach favors Quinshon Judkins, but the QB situation (Watson/Sanders) is a question mark.'},
+  DEN: {hc:null,             oc:'Davis Webb',         tier:'benefit', note:'Modest positive — same Sean Payton system; new WR Jaylen Waddle fits the quick-passing scheme.'},
+  DET: {hc:null,             oc:'Drew Petzing',       tier:'benefit', note:"Strong run-scheme designer — good for Jahmyr Gibbs' explosive-run rate."},
+  KC:  {hc:null,             oc:'Eric Bieniemy',      tier:'benefit', note:'Should help the run game specifically — good sign for Kenneth Walker III.'},
+  LA:  {hc:null,             oc:'Nate Scheelhaase',   tier:'benefit', note:'Smooth continuity from a trusted internal promotion — offense should stay elite (Stafford, Kyren Williams, Nacua, Adams).'},
+  LAC: {hc:null,             oc:'Mike McDaniel',      tier:'benefit', note:'Big win — should help Justin Herbert, Ladd McConkey, and especially Omarion Hampton.'},
+  LV:  {hc:'Klint Kubiak',   oc:'Andrew Janocko',     tier:'benefit', note:'Positive for Ashton Jeanty (McCaffrey-like usage) and Brock Bowers (Kubiak loves feeding star pass-catchers).'},
+  MIA: {hc:'Jeff Hafley',    oc:'Bobby Slowik',       tier:'concern', note:"Slowik's Houston tenure flamed out fast — hard to project confidently either way."},
+  NYG: {hc:'John Harbaugh',  oc:'Matt Nagy',          tier:'concern', note:"Nagy's play-calling history in Chicago/KC is weak — offense outlook shaky, though Cam Skattebo should still get volume."},
+  NYJ: {hc:null,             oc:'Frank Reich',        tier:'concern', note:"Reich's last two stops (Colts, Panthers) were bottom-tier — real concern, though Breece Hall could still get fed."},
+  PHI: {hc:null,             oc:'Sean Mannion',       tier:'concern', note:'First-time play-caller + losing A.J. Brown + O-line turnover = one of the biggest offensive wildcards in the league.'},
+  PIT: {hc:'Mike McCarthy',  oc:'Brian Angelichio',   tier:'concern', note:"Team should be fine, but Aaron Rodgers still isn't fantasy-relevant (finished 26th in FPPG last year)."},
+  TB:  {hc:null,             oc:'Zac Robinson',       tier:'benefit', note:'Another McVay disciple with a track record — positive early impression from Baker Mayfield.'},
+  TEN: {hc:'Robert Saleh',   oc:'Brian Daboll',       tier:'mixed',   note:"Daboll's Giants tenure was rough, but Cam Ward has better weapons now (Wan'Dale Robinson, Calvin Ridley, Carnell Tate)."},
+  WAS: {hc:null,             oc:'David Blough',       tier:'benefit', note:'Plans to move Terry McLaurin around more + target him ~10x/game — good for a McLaurin bounce-back.'},
+  SEA: {hc:null,             oc:'Brian Fleury',       tier:'mixed',   note:"Scheme should look similar to Kubiak's (Fleury coached alongside him) — Rashid Shaheed could see a target bump."},
 };
 
-const OC_GRADE_VALUES = {'A+':12,'A':11,'A-':10,'B+':9,'B':8,'B-':7,'C+':6,'C':5,'C-':4,'D+':3,'D':2,'D-':1};
-function ocDirection(grade){
-  const g = grade[0];
-  if (g==='A') return {label:'↑ Likely Improvement', cls:'oc-up'};
-  if (g==='B') return {label:'↗ Modest Positive', cls:'oc-mod'};
-  if (g==='C') return {label:'↔ Mixed / Uncertain', cls:'oc-mixed'};
-  return {label:'↘ Risk', cls:'oc-risk'};
-}
+const OC_TIER_INFO = {
+  benefit: {label:'🟢 Benefit', cls:'oc-up',     sortVal:3},
+  concern: {label:'🔴 Concern', cls:'oc-risk',   sortVal:1},
+  mixed:   {label:'⚪ Mixed',   cls:'oc-mixed',  sortVal:2},
+  none:    {label:'No Change', cls:'oc-none-tag', sortVal:0},
+};
 function ocSortVal(abbr){
-  const oc = OC_CHANGES[abbr];
+  const oc = COACHING_CHANGES[abbr];
   if (!oc) return -1;
-  return OC_GRADE_VALUES[oc.grade] || 0;
+  return OC_TIER_INFO[oc.tier].sortVal;
 }
 function ocCell(abbr){
-  const oc = OC_CHANGES[abbr];
+  const oc = COACHING_CHANGES[abbr];
   if (!oc) return '<span class="oc-none">—</span>';
-  const dir = ocDirection(oc.grade);
-  const tooltip = `${oc.name} — from: ${oc.from}. Grade: ${oc.grade}. ${oc.note}`.replace(/"/g,'&quot;');
-  return `<div class="oc-name">${oc.name}</div><span class="oc-badge ${dir.cls}" title="${tooltip}">${dir.label} (${oc.grade})</span>`;
+  const info = OC_TIER_INFO[oc.tier];
+  const who = oc.hc ? `HC ${oc.hc} / OC ${oc.oc}` : `OC ${oc.oc}`;
+  const tooltip = `${who} — ${oc.note}`.replace(/"/g,'&quot;');
+  return `<div class="oc-name">${who}</div><span class="oc-badge ${info.cls}" title="${tooltip}">${info.label}</span>`;
 }
 
 let sortCol='offEpaPlay', sortDir='desc';
@@ -250,15 +251,15 @@ function renderCards(){
   const byPace=[...allTeams].sort((a,b)=>b.playsPerGame-a.playsPerGame);
   const top=byEpa[0], bottom=byEpa[byEpa.length-1];
   const fastest=byPace[0], slowest=byPace[byPace.length-1];
-  const byOcGrade=[...allTeams].filter(t=>OC_CHANGES[t.team]).sort((a,b)=>ocSortVal(b.team)-ocSortVal(a.team));
-  const topOc=byOcGrade[0];
+  const benefitCount=Object.values(COACHING_CHANGES).filter(o=>o.tier==='benefit').length;
+  const concernCount=Object.values(COACHING_CHANGES).filter(o=>o.tier==='concern').length;
   document.getElementById('summary-cards').innerHTML=[
     {label:'Best offense (EPA/play)',val:top.name,sub:`+${top.offEpaPlay.toFixed(3)} EPA/play`},
     {label:'Worst offense (EPA/play)',val:bottom.name,sub:`${bottom.offEpaPlay.toFixed(3)} EPA/play`},
     {label:'Fastest pace',val:fastest.name,sub:`${fastest.playsPerGame} plays/game`},
     {label:'Slowest pace',val:slowest.name,sub:`${slowest.playsPerGame} plays/game`},
-    {label:'Top-graded new OC',val:topOc?`${topOc.name} (${topOc.team})`:'—',sub:topOc?`${OC_CHANGES[topOc.team].name} — Grade ${OC_CHANGES[topOc.team].grade}`:''},
-    {label:'New OCs this offseason',val:Object.keys(OC_CHANGES).length,sub:'of 32 teams'},
+    {label:'🟢 Coaching benefit',val:benefitCount,sub:'teams likely to see offensive upside'},
+    {label:'🔴 Coaching concern',val:concernCount,sub:'teams with real downside risk'},
   ].map(c=>`<div class="card"><div class="card-label">${c.label}</div><div class="card-val" style="font-size:15px;">${c.val}</div><div class="card-sub">${c.sub}</div></div>`).join('');
 }
 
@@ -270,7 +271,7 @@ function rebuildHeader(){
     {key:'rushEpaPlay',label:'Rush EPA/Play',left:false},
     {key:'playsPerGame',label:'Plays/Game',left:false},
     {key:'tier',label:'Tier',left:false},
-    {key:'oc',label:'New OC',left:true},
+    {key:'oc',label:'Coaching Change',left:true},
   ];
   document.getElementById('thead').innerHTML=`<tr>${cols.map(c=>`
     <th ${c.left?'class="l"':''} onclick="sortBy('${c.key}')">${c.label}${sortIcon(c.key)}</th>`).join('')}</tr>`;
@@ -281,7 +282,7 @@ function renderTable(){
   const search=document.getElementById('search').value.toLowerCase();
   const ocOnly=document.getElementById('oc-only').checked;
   let data=allTeams.filter(t=>!search||t.name.toLowerCase().includes(search)||t.team.toLowerCase().includes(search));
-  if (ocOnly) data=data.filter(t=>!!OC_CHANGES[t.team]);
+  if (ocOnly) data=data.filter(t=>!!COACHING_CHANGES[t.team]);
 
   data=[...data].sort((a,b)=>{
     if (sortCol==='tier') return sortDir==='asc' ? a.offEpaPlay-b.offEpaPlay : b.offEpaPlay-a.offEpaPlay;
